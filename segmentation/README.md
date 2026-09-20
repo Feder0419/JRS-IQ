@@ -1,23 +1,26 @@
 # segmentation
 
-把扫描版 PDF 表格按类型拆分成单条记录、并转正翻转页面的脚本。
+Scripts that split scanned PDF forms into one record per file, sorted by
+form type, with flipped pages rotated back to right-side-up.
 
-## PDF 放哪里
+## Where to put the PDFs
 
-在这个 `segmentation` 文件夹**外面**(同级)新建一个叫 `pdf` 的文件夹,把要处理的 PDF 文件直接放进去:
+Create a folder named `pdf` **next to** (outside of) this `segmentation`
+folder, and drop the PDF files to process straight into it:
 
 ```
-JRS-IQ/              <- 仓库根目录
-├── pdf/              <- 新建这个文件夹,PDF 直接放这里(不进 git,不用提交)
+JRS-IQ/              <- repo root
+├── pdf/              <- create this folder, put PDFs directly here (not in git)
 │   ├── xxx.pdf
 │   └── yyy.pdf
-└── segmentation/      <- 这个仓库里已有的代码
+└── segmentation/      <- this repo's code
     └── program/
 ```
 
-程序默认就是从 `segmentation/program/` 往上两级找 `pdf/` 文件夹,不用改代码、不用传参数。
+The scripts default to looking for `pdf/` two levels up from
+`segmentation/program/`, so no code changes or extra arguments are needed.
 
-## 环境准备
+## Setup
 
 ```
 cd segmentation
@@ -26,19 +29,23 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-## 怎么跑
+## How to run
 
 ```
 cd segmentation\program
-python stage1_discover.py          # 第一步:扫描全部 PDF,产出待人工标注的 discovery_full/
+python stage1_discover.py          # step 1: scan all PDFs, produce discovery_full/ for manual labeling
 ```
 
-跑完打开 `discovery_full/clusters/` 里的每张图看一眼,把 `discovery_full/labels_template.csv` 填好(每个图对应一行,填 角色/表号/需要转的角度),另存成同目录下的 `labels.csv`,再跑:
+Once it finishes, open every image under `discovery_full/clusters/`, fill in
+`discovery_full/labels_template.csv` (one row per image: role / form code /
+rotation needed), save it as `labels.csv` in the same folder, then run:
 
 ```
-python stage2_segment.py           # 第二步:按标注结果拆分、转正、出结果
+python stage2_segment.py           # step 2: split, rotate, and write the results
 ```
 
-结果在 `../../segmented_form/<表号>/` 下,附一份 `manifest.csv` 核对清单。
+Results land in `../../segmented_form/<form_code>/`, along with a
+`manifest.csv` you can use to spot-check the output.
 
-每个脚本文件开头的注释里有更详细的字段说明。
+See the comment block at the top of each script for more detail on the
+fields.
