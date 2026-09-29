@@ -6,19 +6,39 @@ for reliable text matching), and writes out, for a human to review with no
 Claude/network involvement:
 
   discovery_full/
-    clusters/cluster_000.png ...      - representative example pages per cluster
+    clusters/cluster_000/thumbnail.png  - low-res grid of sample pages, for
+                                           quickly scanning all 80 clusters
+    clusters/cluster_000/full/*.png     - same samples, full resolution, for
+                                           actually reading box labels/text
+    ... one such folder per cluster ...
     labels_template.csv               - one row per cluster, ready to fill in
     page_clusters.pkl                 - every page's cluster assignment (for stage 2)
 
-Fill in labels_template.csv (role / form_code / rotation per cluster, see
-the "role" column doc below), save it as labels.csv in the same folder, then
-run stage2_segment.py - that step needs no PDF re-reading of the fingerprint
+Fill in labels_template.csv directly (role / form_code / rotation per
+cluster, see the "role" column doc below) - there is no separate labels.csv
+copy, this file IS the one stage2_segment.py reads. Once filled in, run
+stage2_segment.py - that step needs no PDF re-reading of the fingerprint
 step, it just joins page_clusters.pkl against your labels.
+
+Because labels_template.csv is now the live, hand-edited file, rerunning
+this script (e.g. with --from-cache to pick up a new --full-zoom) will NOT
+overwrite it once you've started filling it in: if any row already has a
+non-blank "role", the fresh output is written to labels_template.NEW.csv
+instead, with a warning, so your tagging work is never silently clobbered.
 
 Usage:
     python stage1_discover.py [--k 80] [--pdf-dir ../../pdf] [--out discovery_full]
+                               [--full-zoom 2.5]
 
-labels.csv columns to fill in by hand, after opening each cluster's montage:
+    Add --from-cache to skip re-fingerprinting/re-clustering and just
+    regenerate clusters/ (thumbnails + full images) from an existing
+    page_clusters.pkl in --out - much faster than a full rerun, e.g. after
+    changing --full-zoom or wanting fresh images without reprocessing every
+    PDF page again:
+        python stage1_discover.py --from-cache --full-zoom 3.0
+
+labels_template.csv columns to fill in by hand, after opening each cluster's
+folder (thumbnail.png for a quick look, full/ for pages you can actually read):
   role        "front" (starts a new record - has its own identity/company/
               serial fields), "continuation" (belongs to whatever front page
               precedes it - a schedule/detail table with no header of its
@@ -51,9 +71,10 @@ from sklearn.cluster import MiniBatchKMeans
 import lib
 
 DEFAULT_K = 80
-MONTAGE_CLOSEST = 6
-MONTAGE_FARTHEST = 3
+SAMPLE_CLOSEST = 6
+SAMPLE_FARTHEST = 3
 THUMB_SIZE = (150, 190)
+FULL_ZOOM = 2.5  # render zoom for the per-page full-resolution images
 
 
 class DocCache:
@@ -119,13 +140,26 @@ def render_thumb(docs: DocCache, fname, pidx, rot):
     return img.resize(THUMB_SIZE)
 
 
-def make_montage(docs: DocCache, members, out_path):
+def select_samples(members):
+    """Pick a representative subset of a cluster's members: the
+    SAMPLE_CLOSEST examples nearest the cluster center (typical pages) plus
+    the SAMPLE_FARTHEST examples furthest away (edge cases worth a second
+    look), sorted closest-first. Used for both the thumbnail grid and the
+    full-resolution images, in the same order, so the two views line up.
+    """
     members_sorted = sorted(members, key=lambda r: r["dist"])
-    sample = members_sorted[:MONTAGE_CLOSEST]
-    if len(members_sorted) > MONTAGE_CLOSEST:
-        tail = members_sorted[MONTAGE_CLOSEST:]
-        sample = sample + tail[-MONTAGE_FARTHEST:]
+    sample = members_sorted[:SAMPLE_CLOSEST]
+    if len(members_sorted) > SAMPLE_CLOSEST:
+        tail = members_sorted[SAMPLE_CLOSEST:]
+        sample = sample + tail[-SAMPLE_FARTHEST:]
+    return sample
 
+
+def make_montage(docs: DocCache, sample, out_path):
+    """Small grid of all sampled pages for quickly scanning many clusters at
+    once - too low-res to read box labels/handwriting off, see the sibling
+    full/ folder for that.
+    """
     w, h = THUMB_SIZE
     cols = min(4, len(sample))
     rows = (len(sample) + cols - 1) // cols
@@ -136,10 +170,28 @@ def make_montage(docs: DocCache, members, out_path):
         x = (i % cols) * w
         y = (i // cols) * (h + 16)
         sheet.paste(thumb, (x, y + 16))
-        label = f'{m["file"][:14]} p{m["page"] + 1} rot{m["rot"]} d{m["dist"]:.2f}'
+        label = f'{i + 1:02d} {m["file"][:14]} p{m["page"] + 1} rot{m["rot"]} d{m["dist"]:.2f}'
         draw.rectangle([x, y, x + w, y + 16], fill="yellow")
         draw.text((x + 2, y + 2), label, fill="black")
     sheet.save(out_path)
+
+
+def save_full_images(docs: DocCache, sample, out_dir: Path, zoom: float):
+    """Full-resolution render of each sampled page as its own file, so it's
+    actually legible. Filenames repeat the same index/source/page/rotation/
+    distance info as the thumbnail grid's labels (same closest-first order),
+    so a tagger can cross-reference either view.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for i, m in enumerate(sample, 1):
+        doc = docs.get(m["file"])
+        gray = lib.render_gray(doc, m["page"], zoom=zoom)
+        img = Image.fromarray(gray)
+        if m["rot"]:
+            img = img.rotate(m["rot"], expand=True)
+        stem = Path(m["file"]).stem[:40]
+        fname = f'{i:02d}_{stem}_p{m["page"] + 1:05d}_rot{m["rot"]}_d{m["dist"]:.2f}.png'
+        img.save(out_dir / fname)
 
 
 def main():
@@ -148,6 +200,13 @@ def main():
     ap.add_argument("--k", type=int, default=DEFAULT_K, help="number of clusters")
     ap.add_argument("--pdf-dir", default=str(here.parents[1] / "pdf"))
     ap.add_argument("--out", default=str(here / "discovery_full"))
+    ap.add_argument("--full-zoom", type=float, default=FULL_ZOOM,
+                     help="render zoom for the full-resolution per-page images")
+    ap.add_argument("--from-cache", action="store_true",
+                     help="skip re-fingerprinting/re-clustering and reuse the "
+                          "page_clusters.pkl already in --out - fast path for "
+                          "regenerating clusters/ images only (e.g. after "
+                          "changing --full-zoom)")
     args = ap.parse_args()
 
     pdf_dir = Path(args.pdf_dir)
@@ -157,14 +216,21 @@ def main():
 
     docs = DocCache(pdf_dir)
     try:
-        records = build_fingerprints(pdf_dir, docs)
-        cluster_records(records, args.k)
+        if args.from_cache:
+            cache_path = out_dir / "page_clusters.pkl"
+            print(f"--from-cache: loading {cache_path}, skipping fingerprint/cluster steps")
+            with open(cache_path, "rb") as f:
+                records = pickle.load(f)
+        else:
+            records = build_fingerprints(pdf_dir, docs)
+            cluster_records(records, args.k)
 
-        # persist per-page assignment for stage2 - drop the heavy fp vectors,
-        # stage2 never needs to re-render or re-fingerprint anything.
-        slim = [{k: v for k, v in r.items() if k != "fp"} for r in records]
-        with open(out_dir / "page_clusters.pkl", "wb") as f:
-            pickle.dump(slim, f)
+            # persist per-page assignment for stage2 - drop the heavy fp
+            # vectors, stage2 never needs to re-render or re-fingerprint
+            # anything, and --from-cache reruns of this script don't either.
+            slim = [{k: v for k, v in r.items() if k != "fp"} for r in records]
+            with open(out_dir / "page_clusters.pkl", "wb") as f:
+                pickle.dump(slim, f)
 
         by_cluster = {}
         for r in records:
@@ -173,31 +239,46 @@ def main():
         rows = []
         for cid in sorted(by_cluster):
             members = by_cluster[cid]
-            montage_name = f"cluster_{cid:03d}.png"
-            make_montage(docs, members, clusters_dir / montage_name)
+            sample = select_samples(members)
+            cluster_dir = clusters_dir / f"cluster_{cid:03d}"
+            cluster_dir.mkdir(parents=True, exist_ok=True)
+            make_montage(docs, sample, cluster_dir / "thumbnail.png")
+            save_full_images(docs, sample, cluster_dir / "full", zoom=args.full_zoom)
             files_present = sorted(set(m["file"] for m in members))
             rows.append(dict(
                 cluster_id=cid,
                 n_members=len(members),
                 files=";".join(files_present)[:150],
-                montage_file=f"clusters/{montage_name}",
+                montage_file=f"clusters/cluster_{cid:03d}/thumbnail.png",
                 role="", form_code="", rotation="", notes="",
             ))
-            print(f"  cluster {cid}: {len(members)} members -> {montage_name}")
+            print(f"  cluster {cid}: {len(members)} members -> "
+                  f"cluster_{cid:03d}/ (thumbnail.png + full/{len(sample)} pages)")
     finally:
         docs.close_all()
 
     template_path = out_dir / "labels_template.csv"
+    already_tagged = False
+    if template_path.exists():
+        with open(template_path, encoding="utf-8-sig") as f:
+            already_tagged = any((row.get("role") or "").strip() for row in csv.DictReader(f))
+    if already_tagged:
+        template_path = out_dir / "labels_template.NEW.csv"
+        print(f"\nWARNING: existing labels_template.csv already has tagged rows - "
+              f"not overwriting it. Fresh cluster rows written to {template_path} "
+              "instead; merge in any new/changed clusters by hand if needed.")
+
     with open(template_path, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
 
     print(f"\nwrote {len(rows)} clusters to {template_path}")
-    print(f"montages in {clusters_dir}")
-    print("Next: open each clusters/cluster_XXX.png, fill in role/form_code/rotation "
-          "for every row (see column docs in this script's module docstring), "
-          f"save as {out_dir / 'labels.csv'}, then run stage2_segment.py")
+    print(f"cluster folders in {clusters_dir}")
+    print("Next: open each clusters/cluster_XXX/ folder (thumbnail.png for a quick "
+          "look, full/ for legible full-resolution pages) and fill in "
+          "role/form_code/rotation directly in labels_template.csv for every row "
+          "(see column docs in this script's module docstring), then run stage2_segment.py")
 
 
 if __name__ == "__main__":

@@ -36,9 +36,11 @@ cd segmentation\program
 python stage1_discover.py          # step 1: scan all PDFs, produce discovery_full/ for manual labeling
 ```
 
-Once it finishes, open every image under `discovery_full/clusters/`, fill in
-`discovery_full/labels_template.csv` (one row per image: role / form code /
-rotation needed), save it as `labels.csv` in the same folder, then run:
+Once it finishes, open each cluster's folder under `discovery_full/clusters/`
+(`thumbnail.png` for a quick look, `full/` for full-resolution pages you can
+actually read) and fill in `discovery_full/labels_template.csv` directly
+(one row per cluster: role / form code / rotation - see the comment block at
+the top of stage1_discover.py for the column meanings), then run:
 
 ```
 python stage2_segment.py           # step 2: split, rotate, and write the results

@@ -1,14 +1,20 @@
 """Stage 2 (offline, no Claude/network needed).
 
 Consumes discovery_full/page_clusters.pkl (every page's cluster assignment,
-from stage1_discover.py) and discovery_full/labels.csv (the human-filled
-copy of labels_template.csv) and produces one PDF per record, sorted into
-segmented_form/<form_code>/, with continuation pages rotated back to
-right-side-up. Does not re-open PDFs for classification - only to copy
-pages into the output files - so it's fast and needs no image processing.
+from stage1_discover.py) and discovery_full/labels_template.csv (filled in
+by hand - role/form_code/rotation per cluster) and produces one PDF per
+record, sorted into segmented_form/<form_code>/, with continuation pages
+rotated back to right-side-up. Does not re-open PDFs for classification -
+only to copy pages into the output files - so it's fast and needs no image
+processing.
+
+NOTE: tagging happens directly in labels_template.csv (no separate
+labels.csv copy) - see stage1_discover.py's module docstring for the
+guard that protects a filled-in labels_template.csv from being clobbered
+by a later stage1 rerun.
 
 Usage:
-    python stage2_segment.py [--labels discovery_full/labels.csv]
+    python stage2_segment.py [--labels discovery_full/labels_template.csv]
                               [--clusters discovery_full/page_clusters.pkl]
                               [--pdf-dir ../../pdf] [--out ../../segmented_form]
 
@@ -158,7 +164,7 @@ def process_file(fname, doc, by_page, labels, out_dir, manifest_rows):
 def main():
     here = Path(__file__).resolve().parent
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--labels", default=str(here / "discovery_full" / "labels.csv"))
+    ap.add_argument("--labels", default=str(here / "discovery_full" / "labels_template.csv"))
     ap.add_argument("--clusters", default=str(here / "discovery_full" / "page_clusters.pkl"))
     ap.add_argument("--pdf-dir", default=str(here.parents[1] / "pdf"))
     ap.add_argument("--out", default=str(here.parents[1] / "segmented_form"))
