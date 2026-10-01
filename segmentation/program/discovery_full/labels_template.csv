@@ -1,7 +1,7 @@
 ﻿cluster_id,n_members,files,montage_file,role,form_code,rotation,notes
 0,338,25.3.3632Dl0001-1.pdf;25.3.3632Dl0001-2.pdf,clusters/cluster_000/thumbnail.png,,,,
 1,404,25.3.3632Dl0001-1.pdf,clusters/cluster_001/thumbnail.png,continuation,Form_H3_02,0,
-2,34,25.3.3632Dl0001-1.pdf;25.3.3632Dl0001-2.pdf,clusters/cluster_002/thumbnail.png,front,Form_H3_01,0, very dark image
+2,34,25.3.3632Dl0001-1.pdf;25.3.3632Dl0001-2.pdf,clusters/cluster_002/thumbnail.png,ignore,0,,
 3,461,25.3.3632Dl0001-1.pdf,clusters/cluster_003/thumbnail.png,front,Form_H3_01,0,
 4,93,25.3.3632Dl0001-1.pdf;25.3.3632Dl0001-2.pdf,clusters/cluster_004/thumbnail.png,front,Form_H3_01,180,
 5,474,25.3.3632Dl0001-1.pdf,clusters/cluster_005/thumbnail.png,front,Form_H3_01,180,
