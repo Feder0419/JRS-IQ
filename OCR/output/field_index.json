@@ -1,0 +1,67 @@
+[
+  {
+    "document": "example_GOODreport_denoised3.png",
+    "fields": {
+      "form_number": {
+        "value": null,
+        "confidence": null,
+        "llm_checked": false
+      },
+      "report_date": {
+        "value": "March 29 79",
+        "confidence": 0.987,
+        "source": "pattern_fallback",
+        "llm_checked": false
+      },
+      "year_built": {
+        "value": "1976",
+        "confidence": 0.664,
+        "source": "label",
+        "llm_checked": false
+      },
+      "boiler_no": {
+        "value": "14",
+        "confidence": 0.928,
+        "source": "label",
+        "llm_checked": false
+      },
+      "serial_no": {
+        "value": "FORM",
+        "confidence": 0.5,
+        "source": "pattern_fallback",
+        "llm_checked": false
+      },
+      "national_board_no": {
+        "value": "FORM",
+        "confidence": 0.5,
+        "source": "pattern_fallback",
+        "llm_checked": false
+      },
+      "manufactured_by": {
+        "value": "FORM P-B MANUFACTURERS DATA REPORT FOR WATER-TUBE BOILERS, S",
+        "confidence": 0.5,
+        "source": "pattern_fallback",
+        "llm_checked": false
+      },
+      "manufactured_for": {
+        "value": "Gommercial Boiler, Inc., Los'Angeles, Ca",
+        "confidence": 0.946,
+        "source": "label",
+        "llm_checked": false
+      },
+      "material_spec": {
+        "value": null,
+        "confidence": null,
+        "llm_checked": false
+      }
+    },
+    "escalate": true,
+    "escalation_reasons": [
+      "report_date: label not found, value guessed from pattern match elsewhere in document",
+      "year_built: low confidence (0.66)",
+      "serial_no: label not found, value guessed from pattern match elsewhere in document",
+      "national_board_no: label not found, value guessed from pattern match elsewhere in document",
+      "manufactured_by: label not found, value guessed from pattern match elsewhere in document"
+    ]
+  }
+]
