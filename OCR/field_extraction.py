@@ -34,37 +34,43 @@ REVIEW_QUEUE_DIR = OUTPUT_DIR / "review_queue"
 PDF_PAGES_DIR = OUTPUT_DIR / "pdf_pages"
 PDF_INPUT_DIR = Path("pdfs_to_process")  # default input: drop PDFs here and run with no arguments
 
-
-def collect_images(input_path: Path, denoise: bool, invert: bool) -> list[Path]:
-    """Resolve the input into a list of PNGs, rendering any PDFs to PNG first."""
+#Turns a pdf into a list of images (one per page) which are then used in run_ocr 
+def collect_images(input_path: Path, denoise: bool, invert: bool) -> list[tuple[str, list[Path]]]:
+    """
+    Resolve the input into (document name, page images) pairs, rendering any
+    PDFs to PNG first. A PDF is one document with one image per page; a
+    standalone PNG is a one-page document.
+    """
     if input_path.is_dir():
         files = sorted(input_path.iterdir())
     else:
         files = [input_path]
 
-    images = []
+    documents = []
     for f in files:
         suffix = f.suffix.lower()
         if suffix == ".png":
-            images.append(f)
+            documents.append((f.name, [f]))
         elif suffix == ".pdf":
             print(f"Rendering {f.name} at 300 DPI...")
-            images.extend(pdf_to_pngs(f, PDF_PAGES_DIR, denoise=denoise, invert=invert))
-    return images
+            documents.append((f.name, pdf_to_pngs(f, PDF_PAGES_DIR, denoise=denoise, invert=invert)))
+    return documents
 
-
+#Stores text read in from ocr, confidence score, and a bounding box of the text
 @dataclass
 class OcrBox:
     text: str
     score: float
-    box: list  # [x1, y1, x2, y2]
+    box: list  # [x1, y1, x2, y2]: top-left and bottom-right pixel corners
 
-
+#Actually run the ocr on the images
 def run_ocr(ocr: PaddleOCR, image_path: Path) -> list[OcrBox]:
     boxes = []
     for result in ocr.predict(str(image_path)):
         data = result.json["res"]
-        for text, score, box in zip(data["rec_texts"], data["rec_scores"], data["rec_boxes"]):
+        for text, score, box in zip(data["rec_texts"], data["rec_scores"], data["rec_boxes"]): #Records 3 lists, one of texts, their scores, and their bounding boxes
+            # float()/list() convert NumPy types to plain Python ones so the
+            # results can be written to JSON later.
             boxes.append(OcrBox(text=text, score=float(score), box=list(box)))
     return boxes
 
@@ -72,17 +78,22 @@ def run_ocr(ocr: PaddleOCR, image_path: Path) -> list[OcrBox]:
 def group_into_rows(boxes: list[OcrBox]) -> list[list[OcrBox]]:
     """Group boxes into text rows by vertical-center overlap, tolerant of skew."""
     rows: list[list[OcrBox]] = []
+    # Go through boxes top to bottom (by vertical center).
     for b in sorted(boxes, key=lambda b: (b.box[1] + b.box[3]) / 2):
         b_center = (b.box[1] + b.box[3]) / 2
         b_height = b.box[3] - b.box[1]
         for row in rows:
             row_center = sum((r.box[1] + r.box[3]) / 2 for r in row) / len(row)
             row_height = sum(r.box[3] - r.box[1] for r in row) / len(row)
+            # Same row if the centers are within 60% of a text height of each
+            # other; the tolerance absorbs scans that are slightly tilted.
             if abs(b_center - row_center) <= max(b_height, row_height) * 0.6:
                 row.append(b)
                 break
         else:
+            # No existing row was close enough, so this box starts a new row.
             rows.append([b])
+    # Read each row left to right, and order the rows top to bottom.
     for row in rows:
         row.sort(key=lambda b: b.box[0])
     rows.sort(key=lambda row: min(b.box[1] for b in row))
@@ -131,6 +142,9 @@ def extract_fields(rows: list[list[OcrBox]]) -> dict:
             if not matched_alias:
                 continue
 
+            # Find where the label ends: the last box in the row that looks like
+            # the label's final word (e.g. "by" in "manufactured by"). Everything
+            # to the right of it is treated as the value.
             alias_last_word = matched_alias.split()[-1].lower()
             split_idx = 0
             for i, b in enumerate(row):
@@ -139,7 +153,7 @@ def extract_fields(rows: list[list[OcrBox]]) -> dict:
                     split_idx = i + 1
             value_boxes = row[split_idx:]
             if not value_boxes:
-                continue
+                continue  # label with nothing after it; try the next row
 
             value_text = " ".join(b.text for b in value_boxes).strip(" .:-")
             match = pattern.search(value_text)
@@ -147,7 +161,7 @@ def extract_fields(rows: list[list[OcrBox]]) -> dict:
                 # Value didn't fit the expected shape (date, spec code, ...)
                 # - discard rather than keep raw noise as if it were real.
                 continue
-            value_text = match.group(0)
+            value_text = match.group(0)  # keep only the part that fits the pattern
 
             # Take the first (topmost) match, not the highest-confidence one:
             # these forms put report metadata near the top, and a later row
@@ -161,6 +175,8 @@ def extract_fields(rows: list[list[OcrBox]]) -> dict:
             }
             break
 
+        # No usable label row: scan every row for text shaped like the value.
+        # These matches are marked "pattern_fallback" and always get reviewed.
         if field_name not in found:
             for row in rows:
                 row_text = " ".join(b.text for b in row)
@@ -179,14 +195,17 @@ def extract_fields(rows: list[list[OcrBox]]) -> dict:
 
 
 def process_document(ocr: PaddleOCR, image_path: Path) -> dict:
+    """OCR one page image, extract its fields, and decide whether a human must review it."""
     rows = group_into_rows(run_ocr(ocr, image_path))
     extracted = extract_fields(rows)
 
+    # "escalate" means a person should look at this page; the reasons say why.
     result = {"document": image_path.name, "fields": {}, "escalate": False, "escalation_reasons": []}
 
     for field_name, spec in FIELDS.items():
         entry = extracted.get(field_name)
         if entry is None:
+            # Field wasn't found at all; only a problem if the field is required.
             result["fields"][field_name] = {"value": None, "confidence": None, "llm_checked": False}
             if spec["required"]:
                 result["escalate"] = True
@@ -205,10 +224,14 @@ def process_document(ocr: PaddleOCR, image_path: Path) -> dict:
         needs_review = confidence < FIELD_CONFIDENCE_THRESHOLD or entry["source"] == "pattern_fallback"
 
         if needs_review:
+            # Save a cropped image of just this field for review, and ask the
+            # LLM verifier for a second opinion (a no-op without an API key).
             crop_path = REVIEW_QUEUE_DIR / f"{image_path.stem}__{field_name}.png"
             verdict = verify_field(image_path, entry["boxes"], field_name, entry["value"], crop_save_path=crop_path)
             llm_checked = verdict.used_llm
 
+            # Outcomes, in order: LLM agrees -> accept; LLM disagrees -> use its
+            # text but still escalate; no LLM -> escalate for a human to decide.
             if verdict.used_llm and verdict.agrees and entry["source"] == "label":
                 pass  # LLM confirmed a labeled OCR reading despite low confidence; don't escalate
             elif verdict.used_llm and verdict.llm_text:
@@ -234,6 +257,42 @@ def process_document(ocr: PaddleOCR, image_path: Path) -> dict:
     return result
 
 
+def merge_pages(doc_name: str, page_results: list[dict]) -> dict:
+    """
+    Combine the per-page results of one PDF into a single document entry.
+
+    For each field, take the value from the first page that found it by label;
+    if no page found it by label, take the earliest pattern-fallback guess.
+    Preferring the earliest page matters because back pages often yield
+    high-confidence junk (e.g. the "FORM U-1A (BACK)" title). Escalation is
+    then recomputed from the merged fields, so a field missing on the back page
+    doesn't flag a document whose front page had it.
+    """
+    merged = {
+        "document": doc_name,
+        "pages": [p["document"] for p in page_results],
+        "fields": {}, "escalate": False, "escalation_reasons": [],
+    }
+
+    for field_name in FIELDS:
+        # (page result, field entry) pairs that found a value, in page order
+        found = [(p, p["fields"][field_name]) for p in page_results if p["fields"][field_name]["value"] is not None]
+        labeled = [pair for pair in found if pair[1].get("source") == "label"]
+        source_page, entry = (labeled or found or [(page_results[0], page_results[0]["fields"][field_name])])[0]
+
+        merged["fields"][field_name] = dict(entry)
+        if found:
+            merged["fields"][field_name]["page"] = source_page["document"]
+
+        # Keep only the reasons about this field from the page that supplied it.
+        reasons = [r for r in source_page["escalation_reasons"] if r.startswith(f"{field_name}:")]
+        if reasons:
+            merged["escalate"] = True
+            merged["escalation_reasons"].extend(reasons)
+
+    return merged
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", nargs="?", type=Path, default=PDF_INPUT_DIR)
@@ -242,11 +301,14 @@ def main():
     args = parser.parse_args()
 
     PDF_INPUT_DIR.mkdir(exist_ok=True)
-    images = collect_images(args.input, args.denoise, args.invert)
-    if not images:
+    # Turn the input (folder, PDF or PNG) into (document, page images) pairs.
+    documents = collect_images(args.input, args.denoise, args.invert)
+    if not documents:
         print(f"No PDFs or PNGs found in {args.input}. Drop files there and re-run.")
         return
 
+    # Load the OCR models once up front (slow) and reuse them for every page.
+    # The orientation/unwarping steps are turned off to keep runs faster.
     ocr = PaddleOCR(
         lang="en",
         use_doc_orientation_classify=False,
@@ -257,10 +319,16 @@ def main():
     REVIEW_QUEUE_DIR.mkdir(parents=True, exist_ok=True)
 
     all_results = []
-    for image_path in images:
-        print(f"Processing {image_path.name}...")
-        all_results.append(process_document(ocr, image_path))
+    for doc_name, image_paths in documents:
+        page_results = []
+        for image_path in image_paths:
+            print(f"Processing {image_path.name}...")
+            page_results.append(process_document(ocr, image_path))
+        # One entry per PDF: merge its pages' results together.
+        all_results.append(merge_pages(doc_name, page_results))
 
+    # JSON keeps the full detail (confidence, source, LLM status) per field;
+    # the CSV below is a flat one-row-per-document summary of values only.
     OUTPUT_JSON.write_text(json.dumps(all_results, indent=2))
 
     field_names = list(FIELDS.keys())

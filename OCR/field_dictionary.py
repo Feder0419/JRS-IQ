@@ -27,7 +27,7 @@ FIELDS = {
             r"\.?\s+\d{1,2},?\s*(19|20)?\d{2}"
             r"|\d{1,2}/\d{1,2}/(19|20)?\d{2}"
         ),
-        "required": True,
+        "required": False,
     },
     "year_built": {
         "aliases": ["year built"],
@@ -35,7 +35,7 @@ FIELDS = {
         "required": False,
     },
     "boiler_no": {
-        "aliases": ["boiler no", "boiler number"],
+        "aliases": ["boiler no", "boiler number", "vessel no"],
         "pattern": r"[A-Za-z0-9\-]{1,15}",
         "required": False,
     },
@@ -43,11 +43,12 @@ FIELDS = {
         "aliases": ["serial no", "mfrs serial", "mfr's serial", "manufacturer's serial"],
         "pattern": r"[A-Za-z0-9\-]{1,20}",
         "required": True,
-    },
+    }, # Needs some fixing, as words like "FORM" or "NAME" are acceptable board numbers
+       # by this regex leading to incorrect nb and boiler numbers
     "national_board_no": {
         "aliases": ["national board", "natl board", "nat. board", "state and state no"],
         "pattern": r"[A-Za-z0-9\-]{1,15}",
-        "required": False,
+        "required": True,
     },
     "manufactured_by": {
         "aliases": ["manufactured by"],
@@ -56,14 +57,14 @@ FIELDS = {
     },
     "manufactured_for": {
         "aliases": ["manufactured for"],
-        "pattern": r".{3,60}",
+        "pattern": r".{3,60}", #. includes all chars except newlines
         "required": False,
     },
     "material_spec": {
         # Distinctive enough (SA###) that it's worth a full-document regex
-        # fallback even when the "Material spec. no." label is unreadable.
+        #fallback even when the "Material spec. no." label is unreadable.
         "aliases": ["material spec", "spec no", "material spec. no"],
-        "pattern": r"S[AB]\s?-?\d{2,4}[A-Z]?",
+        "pattern": r"S[AB]\s?-?\d{2,4}[A-Z]?", #form S(A/B) with optional space/hyphen, 2-4 digits and trailing char
         "required": False,
     },
 }
@@ -73,4 +74,5 @@ FIELD_CONFIDENCE_THRESHOLD = 0.75
 
 # Fuzzy-match tolerance for alias matching against noisy OCR text
 # (0 = exact substring only, higher = more forgiving of misreads).
+#Allows for strings like "manufactored" to be read as "manufactured"
 ALIAS_FUZZ_RATIO = 0.75

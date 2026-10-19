@@ -1,3 +1,6 @@
+#DEPRECATED- NOT USED IN ACTUAL PIPELINE, ONLY USED TO TEST INDIVIDUAL IMAGES OR A FOLDER
+#OF IMAGES 
+
 from paddleocr import PaddleOCR
 from pathlib import Path
 

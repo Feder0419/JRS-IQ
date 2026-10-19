@@ -1,67 +1,248 @@
 [
   {
-    "document": "example_GOODreport_denoised3.png",
+    "document": "COASTAL_IRON_WKS_REPORTS_1981_page_13.pdf",
     "fields": {
-      "form_number": {
-        "value": null,
-        "confidence": null,
-        "llm_checked": false
-      },
       "report_date": {
-        "value": "March 29 79",
-        "confidence": 0.987,
-        "source": "pattern_fallback",
-        "llm_checked": false
+        "value": "2-25-81",
+        "ocr_value": "March 30 1981",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR took the certificate expiry date (March 30 1981). Certificate of Compliance is dated 2-25-81."
       },
       "year_built": {
-        "value": "1976",
-        "confidence": 0.664,
-        "source": "label",
-        "llm_checked": false
+        "value": "1981",
+        "ocr_value": "1981",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
       },
       "boiler_no": {
-        "value": "14",
-        "confidence": 0.928,
-        "source": "label",
-        "llm_checked": false
+        "value": "331491",
+        "ocr_value": "331491",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
       },
       "serial_no": {
-        "value": "FORM",
-        "confidence": 0.5,
-        "source": "pattern_fallback",
-        "llm_checked": false
+        "value": "331491",
+        "ocr_value": "331491",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
       },
       "national_board_no": {
-        "value": "FORM",
-        "confidence": 0.5,
-        "source": "pattern_fallback",
-        "llm_checked": false
+        "value": "308",
+        "ocr_value": "308",
+        "review_status": "needs human",
+        "uncertain": true,
+        "source": "review",
+        "llm_checked": false,
+        "note": "Handwritten and smudged (could be 306)"
       },
       "manufactured_by": {
-        "value": "FORM P-B MANUFACTURERS DATA REPORT FOR WATER-TUBE BOILERS, S",
-        "confidence": 0.5,
-        "source": "pattern_fallback",
-        "llm_checked": false
+        "value": "COASTAL IRON WORKS, INC. 1133 E. Port, Corpus Christi, Texas",
+        "ocr_value": "COASTAL IRON WORKS INC. 1133 E. Port Corpus Christi. Texas",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "Punctuation only (periods read for commas)."
       },
       "manufactured_for": {
-        "value": "Gommercial Boiler, Inc., Los'Angeles, Ca",
-        "confidence": 0.946,
-        "source": "label",
-        "llm_checked": false
+        "value": "Union Carbide Corporation, P.O. Box 8361, South Charleston, W. Va.",
+        "ocr_value": "Union Carbide Corporation. P.O. Box 8361. South Charleston. ",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR cut off 'W. Va.'."
       },
       "material_spec": {
-        "value": null,
-        "confidence": null,
-        "llm_checked": false
+        "value": "SA-516-70",
+        "ocr_value": "SA-516",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR kept SA-516 and dropped the grade (-70); also confirmed on back page."
       }
     },
     "escalate": true,
     "escalation_reasons": [
-      "report_date: label not found, value guessed from pattern match elsewhere in document",
-      "year_built: low confidence (0.66)",
-      "serial_no: label not found, value guessed from pattern match elsewhere in document",
-      "national_board_no: label not found, value guessed from pattern match elsewhere in document",
-      "manufactured_by: label not found, value guessed from pattern match elsewhere in document"
+      "national_board_no: uncertain"
+    ],
+    "uncertain_fields": [
+      "national_board_no"
     ]
+  },
+  {
+    "document": "CLEAVER_BROOKS_REPORTS_1971_page_33.pdf",
+    "fields": {
+      "report_date": {
+        "value": "September 2?, 1971",
+        "ocr_value": null,
+        "review_status": "needs human",
+        "uncertain": true,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR found nothing. Day digit is smudged (26 or 28); shop inspection date is Sept 21, 1971."
+      },
+      "year_built": {
+        "value": "1971",
+        "ocr_value": "1971",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
+      },
+      "boiler_no": {
+        "value": "47525",
+        "ocr_value": "42525",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR read '42525"
+      },
+      "serial_no": {
+        "value": "47525",
+        "ocr_value": "47525",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
+      },
+      "national_board_no": {
+        "value": "25517",
+        "ocr_value": "H",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR returned 'H'."
+      },
+      "manufactured_by": {
+        "value": "Cleaver-Brooks Division of Aqua-Chem, Inc., Milwaukee, Wisconsin",
+        "ocr_value": "Cleaver-Brooks Division of Aqud-Chem, Inc., Milwaukee, Wisco",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "Misspelling 'Aqud-Chem' and truncated 'Wisco'."
+      },
+      "manufactured_for": {
+        "value": "Opelousas General Hospital, Opelousas, Louisiana",
+        "ocr_value": "Opelousas General Hospital, Opelousas, Louisiana",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
+      },
+      "material_spec": {
+        "value": "SA-285 GR C",
+        "ocr_value": null,
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR found nothing on page 1; value is the tube sheet spec on the back page (shell plate line is obscured by bleed-through; furnace is SA-53 B)."
+      }
+    },
+    "escalate": false,
+    "escalation_reasons": [],
+    "uncertain_fields": [
+      "report_date"
+    ]
+  },
+  {
+    "document": "CLEAVER_BROOKS_REPORTS_1971_page_03.pdf",
+    "fields": {
+      "report_date": {
+        "value": "September 17, 1971",
+        "ocr_value": "September 17, 19",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR read 'September 17, 19'."
+      },
+      "year_built": {
+        "value": "1971",
+        "ocr_value": "1971",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
+      },
+      "boiler_no": {
+        "value": "47508",
+        "ocr_value": "47508",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
+      },
+      "serial_no": {
+        "value": "47508",
+        "ocr_value": "47508",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
+      },
+      "national_board_no": {
+        "value": "25502",
+        "ocr_value": "25502",
+        "review_status": "confirmed",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": null
+      },
+      "manufactured_by": {
+        "value": "Cleaver-Brooks Division of Aqua-Chem, Inc., Milwaukee, Wisconsin",
+        "ocr_value": "6 5 UNIT L-53075 L-4994 47508",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR returned unit-number noise."
+      },
+      "manufactured_for": {
+        "value": "National Food Stores, Inc., Denver, Colorado",
+        "ocr_value": null,
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR field was blanked as garbage; clean on the scan."
+      },
+      "material_spec": {
+        "value": "SA-285-C",
+        "ocr_value": "SA_285-C",
+        "review_status": "corrected",
+        "uncertain": false,
+        "source": "review",
+        "llm_checked": false,
+        "note": "OCR misread '-"
+      }
+    },
+    "escalate": false,
+    "escalation_reasons": [],
+    "uncertain_fields": []
   }
 ]
