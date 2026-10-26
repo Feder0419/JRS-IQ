@@ -18,6 +18,7 @@ import csv
 import json
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from difflib import SequenceMatcher
 from pathlib import Path
 
@@ -121,6 +122,27 @@ def fuzzy_contains(haystack: str, needle: str, min_ratio: float) -> bool:
     return True
 
 
+def clean_text(text: str) -> str:
+    """Drop non-ASCII characters (OCR noise like stray CJK glyphs) so values are safe to write anywhere."""
+    return text.encode("ascii", "ignore").decode("ascii").strip()
+
+
+def find_value(spec: dict, pattern: re.Pattern, text: str) -> str | None:
+    """
+    First pattern match in `text` that is an acceptable value for this field:
+    not a known label word, and containing a digit if the field requires one.
+    """
+    reject = spec.get("reject_words", ())
+    for m in pattern.finditer(clean_text(text)):
+        value = m.group(0)
+        if value.lower() in reject:
+            continue
+        if spec.get("require_digit") and not any(c.isdigit() for c in value):
+            continue
+        return value
+    return None
+
+
 def extract_fields(rows: list[list[OcrBox]]) -> dict:
     """
     For each field: scan rows for a label alias, take the OCR boxes after it
@@ -151,17 +173,28 @@ def extract_fields(rows: list[list[OcrBox]]) -> dict:
                 if alias_last_word in b.text.lower() or \
                    SequenceMatcher(None, b.text.lower(), alias_last_word).ratio() > 0.6:
                     split_idx = i + 1
-            value_boxes = row[split_idx:]
-            if not value_boxes:
-                continue  # label with nothing after it; try the next row
 
-            value_text = " ".join(b.text for b in value_boxes).strip(" .:-")
-            match = pattern.search(value_text)
-            if not match:
-                # Value didn't fit the expected shape (date, spec code, ...)
+            # Candidate places for the value: to the right of the label in the
+            # same row, then (these forms are tables) in the cell directly below.
+            candidates = []
+            if row[split_idx:]:
+                candidates.append(row[split_idx:])
+            # (Free-text fields skip this: the cell below is usually a printed caption.)
+            below = boxes_below_label(row, split_idx, matched_alias, rows) if spec.get("look_below", True) else []
+            if below:
+                candidates.append(below)
+
+            value_boxes, value_text = None, None
+            for group in candidates:
+                text = " ".join(b.text for b in group).strip(" .:-")
+                value_text = find_value(spec, pattern, text)
+                if value_text is not None:
+                    value_boxes = group
+                    break
+            if value_text is None:
+                # Nothing fit the expected shape (date, spec code, ...)
                 # - discard rather than keep raw noise as if it were real.
                 continue
-            value_text = match.group(0)  # keep only the part that fits the pattern
 
             # Take the first (topmost) match, not the highest-confidence one:
             # these forms put report metadata near the top, and a later row
@@ -177,21 +210,101 @@ def extract_fields(rows: list[list[OcrBox]]) -> dict:
 
         # No usable label row: scan every row for text shaped like the value.
         # These matches are marked "pattern_fallback" and always get reviewed.
-        if field_name not in found:
+        # Fields with "fallback": False (serial/board/boiler numbers) are never
+        # guessed this way - any digit string would match - so they stay unfound.
+        if field_name not in found and spec.get("fallback", True):
             for row in rows:
                 row_text = " ".join(b.text for b in row)
-                match = pattern.search(row_text)
-                if match:
-                    contributing = [b for b in row if b.text and b.text in match.group(0)]
+                value = find_value(spec, pattern, row_text)
+                if value:
+                    contributing = [b for b in row if b.text and b.text in value]
                     found[field_name] = {
-                        "value": match.group(0),
+                        "value": value,
                         "confidence": min((b.score for b in contributing), default=0.5),
                         "boxes": [b.box for b in contributing] or [row[0].box],
                         "source": "pattern_fallback",
                     }
                     break
 
+    apply_sanity_checks(found)
     return found
+
+
+def boxes_below_label(row: list[OcrBox], split_idx: int, alias: str, rows: list[list[OcrBox]]) -> list[OcrBox]:
+    """
+    Boxes in the table cell directly under a label: the nearest row below it
+    that overlaps the label's horizontal span (padded a little, since values
+    are often centered or indented relative to their label).
+    """
+    alias_words = alias.lower().split()
+    label_boxes = [
+        b for b in row[:split_idx]
+        if any(w in b.text.lower() or SequenceMatcher(None, b.text.lower(), w).ratio() > 0.6 for w in alias_words)
+    ] or row[max(split_idx - 1, 0):split_idx]
+    if not label_boxes:
+        return []
+
+    x1 = min(b.box[0] for b in label_boxes)
+    x2 = max(b.box[2] for b in label_boxes)
+    y2 = max(b.box[3] for b in label_boxes)
+    height = max(b.box[3] - b.box[1] for b in label_boxes)
+    pad = (x2 - x1) * 0.25
+
+    candidates = []
+    for other in rows:
+        if other is row:
+            continue
+        for b in other:
+            center_y = (b.box[1] + b.box[3]) / 2
+            # below the label, but not so far down it's a different section
+            if b.text.lstrip().startswith("("):
+                continue  # printed caption like "(Name of part...)", not a filled-in value
+            if y2 - height * 0.3 < center_y < y2 + height * 4 and b.box[2] > x1 - pad and b.box[0] < x2 + pad:
+                candidates.append(b)
+    if not candidates:
+        return []
+
+    candidates.sort(key=lambda b: (b.box[1] + b.box[3]) / 2)
+    first_y = (candidates[0].box[1] + candidates[0].box[3]) / 2
+    nearest = [b for b in candidates if abs((b.box[1] + b.box[3]) / 2 - first_y) <= height * 0.6]
+    return sorted(nearest, key=lambda b: b.box[0])
+
+
+# Common ASME boiler/pressure-vessel material specs (SA-###), used to catch
+# misreads like "SA 31". Not exhaustive: an unlisted spec is flagged for a
+# human to confirm, not rejected.
+KNOWN_MATERIAL_SPECS = {
+    36, 53, 105, 106, 178, 179, 181, 182, 192, 193, 194, 210, 213, 214, 216, 234,
+    240, 266, 278, 285, 299, 302, 307, 312, 333, 336, 351, 515, 516, 517, 533, 537,
+    570, 612, 675,
+}
+EARLIEST_REPORT_YEAR = 1900
+
+
+def apply_sanity_checks(found: dict) -> None:
+    """
+    Cross-check extracted values for plausibility. A failing value is kept (so
+    the reviewer can see it) but gets a "flag" that forces human review.
+    """
+    year_built = int(found["year_built"]["value"]) if "year_built" in found else None
+
+    entry = found.get("report_date")
+    if entry:
+        year = int(re.findall(r"\d+", entry["value"])[-1])
+        if year < 100:
+            year += 1900  # two-digit year on these forms means 19xx
+        if not EARLIEST_REPORT_YEAR <= year <= datetime.now().year:
+            entry["flag"] = f"report_date year {year} is not plausible"
+        elif year_built and year < year_built:
+            entry["flag"] = f"report_date year {year} is before year built {year_built}"
+
+    entry = found.get("material_spec")
+    if entry:
+        m = re.match(r"S([AB])\s?-?(\d+)", entry["value"], re.IGNORECASE)
+        if m:
+            entry["value"] = f"S{m.group(1).upper()}-{m.group(2)}"  # normalize "SA 516" -> "SA-516"
+            if int(m.group(2)) not in KNOWN_MATERIAL_SPECS:
+                entry["flag"] = f"{entry['value']} is not a known material spec"
 
 
 def process_document(ocr: PaddleOCR, image_path: Path) -> dict:
@@ -221,7 +334,11 @@ def process_document(ocr: PaddleOCR, image_path: Path) -> dict:
         # still be the wrong field's value entirely (e.g. picking up a
         # certificate-expiry date instead of the report date). Confidence
         # alone can't catch that, so fallback matches always get reviewed.
-        needs_review = confidence < FIELD_CONFIDENCE_THRESHOLD or entry["source"] == "pattern_fallback"
+        needs_review = (
+            confidence < FIELD_CONFIDENCE_THRESHOLD
+            or entry["source"] == "pattern_fallback"
+            or bool(entry.get("flag"))  # failed a plausibility check
+        )
 
         if needs_review:
             # Save a cropped image of just this field for review, and ask the
@@ -232,7 +349,7 @@ def process_document(ocr: PaddleOCR, image_path: Path) -> dict:
 
             # Outcomes, in order: LLM agrees -> accept; LLM disagrees -> use its
             # text but still escalate; no LLM -> escalate for a human to decide.
-            if verdict.used_llm and verdict.agrees and entry["source"] == "label":
+            if verdict.used_llm and verdict.agrees and entry["source"] == "label" and not entry.get("flag"):
                 pass  # LLM confirmed a labeled OCR reading despite low confidence; don't escalate
             elif verdict.used_llm and verdict.llm_text:
                 entry["value"] = verdict.llm_text
@@ -240,6 +357,9 @@ def process_document(ocr: PaddleOCR, image_path: Path) -> dict:
                 result["escalation_reasons"].append(
                     f"{field_name}: LLM correction '{verdict.llm_text}', needs human confirmation"
                 )
+            elif entry.get("flag"):
+                result["escalate"] = True
+                result["escalation_reasons"].append(f"{field_name}: {entry['flag']}")
             elif entry["source"] == "pattern_fallback":
                 result["escalate"] = True
                 result["escalation_reasons"].append(
@@ -311,6 +431,7 @@ def main():
     # The orientation/unwarping steps are turned off to keep runs faster.
     ocr = PaddleOCR(
         lang="en",
+        device="gpu:0",  # first NVIDIA GPU; use "cpu" to force CPU
         use_doc_orientation_classify=False,
         use_doc_unwarping=False,
         use_textline_orientation=False,
@@ -332,7 +453,7 @@ def main():
     OUTPUT_JSON.write_text(json.dumps(all_results, indent=2))
 
     field_names = list(FIELDS.keys())
-    with open(OUTPUT_CSV, "w", newline="") as f:
+    with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["document", "escalate", "escalation_reasons"] + field_names)
         for r in all_results:
