@@ -14,6 +14,13 @@ Each field has:
   require_digit - (optional) value must contain at least one digit
   look_below - (optional, default True) if False, only read the value from the
              label's own row, never the cell below it
+  min_alpha_ratio - (optional) letters must make up at least this share of the
+             non-space characters (rejects "6 5 UNIT L-53075 47508" as a name)
+  require_capital - (optional) value must contain a capitalized word (rejects
+             lowercase body text read as a name)
+  skip_row_words - (optional) ignore any row containing one of these words
+             (e.g. "expires", so the certificate expiry date isn't the report date)
+  vocabulary - (optional) correct near-miss spellings of KNOWN_WORDS in the value
   fallback - (optional, default True) if False, never guess the value from a
              document-wide pattern scan when its label isn't found
   required - if True and never found, the document should be escalated
@@ -28,6 +35,23 @@ LABEL_WORDS = {
     "mfr", "mfrs", "manufacturer", "manufactured", "state", "back", "report",
 }
 
+# Words that free-text fields (manufacturer, customer) are spell-corrected
+# against when "vocabulary" is set: a word that is almost, but not exactly, one
+# of these is replaced (e.g. "Aqud-Chem" -> "Aqua-Chem"). Add company names as
+# they show up in the reports.
+US_STATES = [
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
+    "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan",
+    "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
+    "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
+    "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+    "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia",
+    "Wisconsin", "Wyoming",
+]
+COMPANY_WORDS = ["Aqua-Chem", "Cleaver-Brooks", "Chemi-Trol", "Division", "Corporation", "Company"]
+KNOWN_WORDS = sorted({w for name in US_STATES + COMPANY_WORDS for w in name.split()})
+
 FIELDS = {
     "form_number": {
         "aliases": ["form"],
@@ -40,8 +64,9 @@ FIELDS = {
             r"(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|"
             r"Aug(ust)?|Sep(t)?(ember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)"
             r"\.?\s+\d{1,2},?\s*(19|20)?\d{2}"
-            r"|\d{1,2}/\d{1,2}/(19|20)?\d{2}"
+            r"|\d{1,2}[/-]\d{1,2}[/-](19|20)?\d{2}"
         ),
+        "skip_row_words": ["expires", "expiration", "expiry"],
         "required": False,
     },
     "year_built": {
@@ -75,21 +100,31 @@ FIELDS = {
     },
     "manufactured_by": {
         "aliases": ["manufactured by"],
-        "pattern": r".{3,60}",
+        "pattern": r".{3,120}",
         "look_below": False,
+        "fallback": False,  # the pattern matches any row, so a guess is just noise
+        "min_alpha_ratio": 0.6,
+        "require_capital": True,
+        "vocabulary": True,
         "required": True,
     },
     "manufactured_for": {
         "aliases": ["manufactured for"],
-        "pattern": r".{3,60}", #. includes all chars except newlines
+        "pattern": r".{3,120}", #. includes all chars except newlines
         "look_below": False,
+        "fallback": False,
+        "min_alpha_ratio": 0.6,
+        "require_capital": True,
+        "vocabulary": True,
         "required": False,
     },
     "material_spec": {
         # Distinctive enough (SA###) that it's worth a full-document regex
         #fallback even when the "Material spec. no." label is unreadable.
         "aliases": ["material spec", "spec no", "material spec. no"],
-        "pattern": r"S[AB]\s?-?\d{2,4}[A-Z]?", #form S(A/B) with optional space/hyphen, 2-4 digits and trailing char
+        # S(A/B), optional separator, 2-4 digits and a trailing letter, then an optional grade
+        # such as "-70", " GR C" or "-C".
+        "pattern": r"S[AB][\s_-]?\d{2,4}[A-Z]?(?:[\s_-]+(?:GR\.?\s*[A-Z0-9]{1,2}|\d{2}|[A-C]))?\b",
         "required": False,
     },
 }
