@@ -3,10 +3,31 @@
 Consumes discovery_full/page_clusters.pkl (every page's cluster assignment,
 from stage1_discover.py) and discovery_full/labels_template.csv (filled in
 by hand - role/form_code/rotation per cluster) and produces one PDF per
-record, sorted into segmented_form/<form_code>/, with continuation pages
+record, sorted into segmented_form/form_<code>/, with continuation pages
 rotated back to right-side-up. Does not re-open PDFs for classification -
 only to copy pages into the output files - so it's fast and needs no image
 processing.
+
+Two optional inputs refine the cluster labels:
+
+  discovery_full/page_overrides.csv - hand-written per-file / per-page-range
+      rules that take priority over the cluster labels. Columns:
+        source_file       PDF file name
+        first_page        1-based, inclusive; blank = start of file
+        last_page         1-based, inclusive; blank = end of file
+        role              front / continuation / ignore; blank = keep cluster role
+        form_code         e.g. U-1A; blank = keep OCR / cluster code
+        rotation          final rotation for every page in range; blank = computed
+        pages_per_record  N: every N-th page from first_page is a front, the
+                          others continuations (overrides the role column)
+        notes             free text
+      Later rows win over earlier rows where ranges overlap.
+
+  discovery_full/front_ocr.csv - title-strip OCR of every front page, written
+      by ocr_titles.py. Clusters group pages by box/rule layout only, so forms
+      with the same layout but a different title (H-3 vs P-3) end up in the
+      same cluster; the OCR text tells them apart. A front page's form code is
+      taken from (highest priority first): override, OCR keywords, cluster.
 
 NOTE: tagging happens directly in labels_template.csv (no separate
 labels.csv copy) - see stage1_discover.py's module docstring for the
@@ -16,6 +37,8 @@ by a later stage1 rerun.
 Usage:
     python stage2_segment.py [--labels discovery_full/labels_template.csv]
                               [--clusters discovery_full/page_clusters.pkl]
+                              [--overrides discovery_full/page_overrides.csv]
+                              [--ocr discovery_full/front_ocr.csv]
                               [--pdf-dir ../../pdf] [--out ../../segmented_form]
 
 Record-grouping rule: walking each source file's pages in order, a page
@@ -28,10 +51,12 @@ silently dropped.
 import argparse
 import csv
 import pickle
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 
 import fitz
+
+from forms import canon_code, ocr_form_code, safe_label
 
 # Continuation-page fingerprints are close to rotation-symmetric (a dense
 # detail table looks similar either way up), so the per-cluster 'rotation'
@@ -45,6 +70,8 @@ DEFAULT_CONTINUATION_ROTATION = {
     "25.3.3632Dl0001-1.pdf": 180,
     "25.3.3632Dl0001-2.pdf": 180,
 }
+
+ROLES = {"front", "continuation", "ignore"}
 
 
 def load_labels(path):
@@ -60,6 +87,39 @@ def load_labels(path):
                 rotation=int(rotation) if rotation else None,
             )
     return labels
+
+
+def load_overrides(path):
+    path = Path(path)
+    if not path.exists():
+        return []
+    rules = []
+    with open(path, encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            get = lambda k: (row.get(k) or "").strip()
+            role = get("role").lower()
+            if role and role not in ROLES:
+                raise ValueError(f"{path}: bad role {role!r} in row {row}")
+            rules.append(dict(
+                file=get("source_file"),
+                first=int(get("first_page")) - 1 if get("first_page") else 0,
+                last=int(get("last_page")) - 1 if get("last_page") else None,
+                role=role or None,
+                form_code=canon_code(get("form_code")) if get("form_code") else None,
+                rotation=int(get("rotation")) if get("rotation") else None,
+                pages_per_record=int(get("pages_per_record")) if get("pages_per_record") else None,
+            ))
+    return rules
+
+
+def load_ocr(path):
+    """(file, 0-based page) -> (rotation the OCR was done at, text)"""
+    path = Path(path)
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8-sig") as f:
+        return {(r["source_file"], int(r["page"]) - 1): (int(r["rotation"]), r["text"])
+                for r in csv.DictReader(f)}
 
 
 def load_page_clusters(path):
@@ -105,35 +165,72 @@ def resolve_page(entries, labels):
     return "ignore", None, 0
 
 
-def safe_label(label):
-    return "form_" + label.lower().replace(" ", "_").replace("/", "-")
-
-
-def process_file(fname, doc, by_page, labels, out_dir, manifest_rows):
+def classify_pages(fname, n_pages, by_page, labels, overrides):
+    """Per page: dict(role, cluster_code, override_code, rotation)."""
     cont_rotation_default = DEFAULT_CONTINUATION_ROTATION.get(fname, 0)
+    pages = []
+    for pidx in range(n_pages):
+        entries = by_page.get((fname, pidx))
+        role, code, rotation = resolve_page(entries, labels) if entries else ("ignore", None, 0)
+        pages.append(dict(role=role, cluster_code=code and canon_code(code),
+                          override_code=None, rotation=rotation))
+
+    for rule in overrides:
+        if rule["file"] != fname:
+            continue
+        last = n_pages - 1 if rule["last"] is None else min(rule["last"], n_pages - 1)
+        for pidx in range(rule["first"], last + 1):
+            p = pages[pidx]
+            if rule["pages_per_record"]:
+                p["role"] = "front" if (pidx - rule["first"]) % rule["pages_per_record"] == 0 else "continuation"
+            elif rule["role"]:
+                p["role"] = rule["role"]
+            if rule["form_code"]:
+                p["override_code"] = rule["form_code"]
+            if rule["rotation"] is not None:
+                p["rotation"] = rule["rotation"]
+
+    for p in pages:
+        if p["rotation"] is None:
+            p["rotation"] = cont_rotation_default if p["role"] == "continuation" else 0
+    return pages
+
+
+def front_label(fname, pidx, page, ocr):
+    """(form code, which source it came from, ocr code) for a front page."""
+    ocr_code = None
+    hit = ocr.get((fname, pidx))
+    if hit and hit[0] == page["rotation"]:
+        ocr_code = ocr_form_code(hit[1])
+    if page["override_code"]:
+        return page["override_code"], "override", ocr_code
+    if ocr_code:
+        return ocr_code, "ocr", ocr_code
+    return (page["cluster_code"] or "unknown"), ("cluster" if hit else "cluster_no_ocr"), ocr_code
+
+
+def process_file(fname, doc, by_page, labels, overrides, ocr, out_dir, manifest_rows):
+    pages = classify_pages(fname, len(doc), by_page, labels, overrides)
 
     records = []
     current = None
-    for pidx in range(len(doc)):
-        entries = by_page.get((fname, pidx))
-        if not entries:
-            role, form_code, rotation = "ignore", None, 0
-        else:
-            role, form_code, rotation = resolve_page(entries, labels)
-            if role == "continuation" and rotation is None:
-                rotation = cont_rotation_default
-
+    for pidx, page in enumerate(pages):
+        role, rotation = page["role"], page["rotation"]
         if role == "front":
             if current:
                 records.append(current)
-            current = dict(label=form_code, pages=[(pidx, rotation)])
+            label, source, ocr_code = front_label(fname, pidx, page, ocr)
+            current = dict(label=label, label_source=source, cluster_code=page["cluster_code"],
+                           ocr_code=ocr_code, pages=[(pidx, rotation)])
         elif role == "continuation" and current:
             current["pages"].append((pidx, rotation))
         else:  # 'ignore', or an orphan continuation with nothing open yet
             if current:
                 records.append(current)
             current = None
-            records.append(dict(label="_unclassified", pages=[(pidx, rotation)]))
+            records.append(dict(label="_unclassified",
+                                label_source="orphan_continuation" if role == "continuation" else "ignore",
+                                cluster_code=None, ocr_code=None, pages=[(pidx, rotation)]))
 
     if current:
         records.append(current)
@@ -157,6 +254,9 @@ def process_file(fname, doc, by_page, labels, out_dir, manifest_rows):
             source_pages=f"{first_page + 1}-{rec['pages'][-1][0] + 1}",
             n_pages=len(rec["pages"]),
             form_type=rec["label"],
+            label_source=rec["label_source"],
+            cluster_code=rec["cluster_code"] or "",
+            ocr_code=rec["ocr_code"] or "",
             output_path=str(out_path),
         ))
 
@@ -166,6 +266,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--labels", default=str(here / "discovery_full" / "labels_template.csv"))
     ap.add_argument("--clusters", default=str(here / "discovery_full" / "page_clusters.pkl"))
+    ap.add_argument("--overrides", default=str(here / "discovery_full" / "page_overrides.csv"))
+    ap.add_argument("--ocr", default=str(here / "discovery_full" / "front_ocr.csv"))
     ap.add_argument("--pdf-dir", default=str(here.parents[1] / "pdf"))
     ap.add_argument("--out", default=str(here.parents[1] / "segmented_form"))
     args = ap.parse_args()
@@ -177,6 +279,13 @@ def main():
         print(f"WARNING: {len(missing)} clusters have no role set "
               f"(treated as 'ignore', pages routed to _unclassified): {missing}")
 
+    overrides = load_overrides(args.overrides)
+    ocr = load_ocr(args.ocr)
+    print(f"{len(overrides)} override rules, OCR text for {len(ocr)} pages")
+    if not ocr:
+        print("WARNING: no OCR cache - form codes come from cluster labels only "
+              "(run ocr_titles.py first to tell H-3 / P-3 etc. apart)")
+
     by_page = load_page_clusters(args.clusters)
     pdf_dir = Path(args.pdf_dir)
     out_dir = Path(args.out)
@@ -186,7 +295,7 @@ def main():
     for pdf_path in sorted(pdf_dir.glob("*.pdf")):
         print(f"processing {pdf_path.name}")
         doc = fitz.open(pdf_path)
-        process_file(pdf_path.name, doc, by_page, labels, out_dir, manifest_rows)
+        process_file(pdf_path.name, doc, by_page, labels, overrides, ocr, out_dir, manifest_rows)
         doc.close()
 
     manifest_path = out_dir / "manifest.csv"
@@ -195,6 +304,12 @@ def main():
         writer.writeheader()
         writer.writerows(manifest_rows)
     print(f"wrote {len(manifest_rows)} records to {manifest_path}")
+    print("records by form:", dict(Counter(r["form_type"] for r in manifest_rows).most_common()))
+    print("label source:", dict(Counter(r["label_source"] for r in manifest_rows).most_common()))
+    no_ocr = sum(r["label_source"] == "cluster_no_ocr" for r in manifest_rows)
+    if no_ocr and ocr:
+        print(f"WARNING: {no_ocr} front pages have no OCR text at their current rotation "
+              f"- rerun ocr_titles.py to fill them in")
 
 
 if __name__ == "__main__":
