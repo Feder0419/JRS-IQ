@@ -28,6 +28,8 @@ from pathlib import Path
 from paddleocr import PaddleOCR
 from PIL import Image
 
+from field_crops import locate_field_crops
+from form_templates import match_page
 from field_dictionary import ALIAS_FUZZ_RATIO, FIELD_CONFIDENCE_THRESHOLD, FIELDS, KNOWN_WORDS
 from llm_verify import verify_field
 from pdf_preprocess import pdf_to_pngs
@@ -38,7 +40,6 @@ OUTPUT_JSON = OUTPUT_DIR / "field_index.json"
 FIELD_CROPS_DIR = OUTPUT_DIR / "field_crops"
 PDF_PAGES_DIR = OUTPUT_DIR / "pdf_pages"
 OCR_BOXES_DIR = OUTPUT_DIR / "ocr_boxes"
-CROP_PAD_X, CROP_PAD_Y = 30, 20   # pixels of page around a field crop (pages are rendered at 300 DPI)
 MAX_REJECTED_BOXES = 4   # a refused value cell is a few boxes at most
 MAX_REJECTED_TEXT = 40   # ...and short; longer prose that doesn't fit a pattern is not a value cell
 PDF_INPUT_DIR = Path("pdfs_to_process")  # default input: drop PDFs here and run with no arguments
@@ -192,28 +193,25 @@ def autocorrect_words(text: str) -> tuple[str, list[str]]:
     return re.sub(r"[A-Za-z][A-Za-z-]*", fix, text), changes
 
 
-def extract_fields(rows: list[list[OcrBox]]) -> tuple[dict, dict, dict]:
+def extract_fields(rows: list[list[OcrBox]]) -> tuple[dict, dict]:
     """
     For each field: scan rows for a label alias, take the OCR boxes after it
     in that row as the value. If no labeled row matches (label itself didn't
     survive OCR), fall back to a full-document regex scan for fields whose
     value has a distinctive enough shape to find unlabeled (e.g. SA53B).
 
-    Returns (found, rejected, regions). `rejected` maps a field to the
-    label-adjacent boxes whose text failed validation (e.g. an "H" where a board
-    number should be), with the reason. `regions` maps every field whose label
-    (or, failing that, value pattern) was located to the boxes to crop for it,
-    whether or not a value was accepted - the crop is what a vision model reads.
+    Returns (found, rejected). `rejected` maps a field to the label-adjacent
+    boxes whose text failed validation (e.g. an "H" where a board number should
+    be), with the reason. Where to crop for each field is decided separately, in
+    field_crops.py.
     """
     found = {}
     rejected = {}
-    regions = {}
 
     for field_name, spec in FIELDS.items():
         pattern = re.compile(spec["pattern"], re.IGNORECASE)
 
         skip_words = spec.get("skip_row_words", ())
-        label_rows = []  # every row that matched this field's keyword
 
         for row_index, row in enumerate(rows):
             row_text = " ".join(b.text for b in row)
@@ -235,10 +233,6 @@ def extract_fields(rows: list[list[OcrBox]]) -> tuple[dict, dict, dict]:
                 if alias_last_word in b.text.lower() or \
                    SequenceMatcher(None, b.text.lower(), alias_last_word).ratio() > 0.6:
                     split_idx = i + 1
-            # An exact keyword beats a fuzzy near-miss ("data" for "date") when
-            # choosing which row to crop if no value is accepted.
-            quality = 2 if matched_alias.lower() in row_text.lower() else 1
-            label_rows.append((quality, row_index, row, split_idx, matched_alias))
 
             # Candidate places for the value: to the right of the label in the
             # same row, then (these forms are tables) in the cell directly below.
@@ -291,28 +285,11 @@ def extract_fields(rows: list[list[OcrBox]]) -> tuple[dict, dict, dict]:
                 "value": value_text, "confidence": conf,
                 "boxes": [b.box for b in value_boxes], "source": "label",
             }
-            regions[field_name] = {
-                "kind": "label",
-                "label_boxes": [b.box for b in find_label_boxes(row, split_idx, matched_alias, whole_row_fallback=True)],
-                "value_boxes": [b.box for b in value_boxes], "extra_boxes": [],
-            }
             if spec.get("vocabulary"):
                 found[field_name]["value"], fixes = autocorrect_words(value_text)
                 if fixes:
                     found[field_name]["autocorrected"] = fixes
             break
-
-        # No value was accepted, but the keyword may still have been found: crop
-        # around the best keyword row so the value can be read from the image.
-        if field_name not in regions and label_rows:
-            _, row_index, row, split_idx, alias = max(label_rows, key=lambda t: (t[0], -t[1]))
-            regions[field_name] = {
-                "kind": "label_only",
-                "label_boxes": [b.box for b in find_label_boxes(row, split_idx, alias, whole_row_fallback=True)],
-                "value_boxes": [],
-                # the refused neighbouring cells of that row, so the crop covers them
-                "extra_boxes": [box for r in rejected.get(field_name, []) if r["row"] == row_index for box in r["boxes"]],
-            }
 
         # No usable label row: scan every row for text shaped like the value.
         # These matches are marked "pattern_fallback" and always get reviewed.
@@ -332,59 +309,44 @@ def extract_fields(rows: list[list[OcrBox]]) -> tuple[dict, dict, dict]:
                         "boxes": [b.box for b in contributing] or [row[0].box],
                         "source": "pattern_fallback",
                     }
-                    regions[field_name] = {
-                        "kind": "pattern_fallback", "label_boxes": [],
-                        "value_boxes": found[field_name]["boxes"], "extra_boxes": [],
-                    }
                     break
 
     apply_sanity_checks(found)
-    return found, rejected, regions
+    return found, rejected
 
 
-def field_crop_box(region: dict, page_w: int, page_h: int) -> list[int] | None:
-    """
-    Pixel box to crop for one field: the label plus its value (if one was
-    accepted), padded. Wherever a keyword was found, the box is also widened
-    around the label: the real value may sit to the right, below, or - on these
-    forms, where the printed caption is under the filled-in value - above it, and
-    OCR's own pick may be the wrong cell.
-    """
-    boxes = [*region["label_boxes"], *region["value_boxes"], *region["extra_boxes"]]
-    if not boxes:
-        return None
-    if region["label_boxes"]:
-        lx1, ly1 = min(b[0] for b in region["label_boxes"]), min(b[1] for b in region["label_boxes"])
-        lx2, ly2 = max(b[2] for b in region["label_boxes"]), max(b[3] for b in region["label_boxes"])
-        w, h = lx2 - lx1, ly2 - ly1
-        boxes.append([lx1 - w * 0.5, ly1 - h * 5, lx2 + w * 0.5, ly2 + h * 1.5])
-    return [
-        int(max(min(b[0] for b in boxes) - CROP_PAD_X, 0)),
-        int(max(min(b[1] for b in boxes) - CROP_PAD_Y, 0)),
-        int(min(max(b[2] for b in boxes) + CROP_PAD_X, page_w)),
-        int(min(max(b[3] for b in boxes) + CROP_PAD_Y, page_h)),
-    ]
+def value_ok(spec: dict, text: str) -> bool:
+    """Does `text` have the shape of this field's value (used to judge whether a crop zone holds one)?"""
+    return find_value(spec, re.compile(spec["pattern"], re.IGNORECASE), text) is not None
 
 
-def save_field_crops(image_path: Path, regions: dict) -> dict:
+def save_field_crops(image_path: Path, rows: list[list[OcrBox]], found: dict) -> tuple[dict, dict]:
     """
     Save a small image of every located field to field_crops/<page>__<field>.png
-    and return {field: {crop_file, crop_box, crop_kind}}. These crops, not the
-    whole page, are what a vision model should be sent.
+    and return ({field: {crop_file, crop_box, crop_kind}}, form_template_info).
+    These crops, not the whole page, are what a vision model should be sent.
+
+    If the page is lined up with a known form type (form_templates/), that form's
+    field rectangles are used and only those fields get a crop (a field the form
+    does not have on this page gets none). Otherwise the crop is placed from the
+    keywords OCR found. A field with no crop is left for the model to find on the
+    full page.
     """
     FIELD_CROPS_DIR.mkdir(parents=True, exist_ok=True)
     saved = {}
     with Image.open(image_path) as page:
-        for field_name, region in regions.items():
-            box = field_crop_box(region, page.width, page.height)
-            if box is None:
-                continue
+        template = match_page(page)
+        if template["template"]:
+            located = template["fields"]
+        else:
+            located = locate_field_crops(rows, found, page.width, page.height, fuzzy_contains, value_ok)
+        for field_name, crop in located.items():
             path = FIELD_CROPS_DIR / f"{image_path.stem}__{field_name}.png"
-            page.crop(tuple(box)).save(path)
+            page.crop(tuple(crop["box"])).save(path)
             saved[field_name] = {
-                "crop_file": f"{FIELD_CROPS_DIR.name}/{path.name}", "crop_box": box, "crop_kind": region["kind"],
+                "crop_file": f"{FIELD_CROPS_DIR.name}/{path.name}", "crop_box": crop["box"], "crop_kind": crop["kind"],
             }
-    return saved
+    return saved, {"name": template["template"], "inliers": template["inliers"]}
 
 
 def find_label_boxes(row: list[OcrBox], split_idx: int, alias: str, whole_row_fallback: bool = False) -> list[OcrBox]:
@@ -515,13 +477,13 @@ def process_document(ocr: PaddleOCR, image_path: Path) -> dict:
     ocr_boxes = run_ocr(ocr, image_path)
     boxes_file = save_ocr_boxes(image_path, ocr_boxes)
     rows = group_into_rows(ocr_boxes)
-    extracted, rejected, regions = extract_fields(rows)
-    crops = save_field_crops(image_path, regions)
+    extracted, rejected = extract_fields(rows)
+    crops, form_template = save_field_crops(image_path, rows, extracted)
     no_crop = {"crop_file": None, "crop_box": None, "crop_kind": None}
 
     # "escalate" means a person should look at this page; the reasons say why.
     result = {
-        "document": image_path.name, "ocr_boxes_file": boxes_file,
+        "document": image_path.name, "ocr_boxes_file": boxes_file, "form_template": form_template,
         "fields": {}, "escalate": False, "escalation_reasons": [],
     }
 
@@ -611,6 +573,7 @@ def merge_pages(doc_name: str, page_results: list[dict]) -> dict:
         "document": doc_name,
         "pages": [p["document"] for p in page_results],
         "ocr_boxes_files": [p["ocr_boxes_file"] for p in page_results],
+        "form_templates": [p["form_template"] for p in page_results],
         "fields": {}, "escalate": False, "escalation_reasons": [],
     }
 

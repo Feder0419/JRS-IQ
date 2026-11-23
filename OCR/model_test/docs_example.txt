@@ -1,0 +1,5 @@
+# One document per line (a PDF with its pages in order, or a single page image).
+# Lines starting with # are ignored. Paths are relative to where you run make_snippets.py.
+../pdfs_to_process/CLEAVER_BROOKS_REPORTS_1971_page_33.pdf
+../pdfs_to_process/COASTAL_IRON_WKS_REPORTS_1981_page_13.pdf
+../output/review_queue/CHEMI-TROL_REPORTS_1969_page_02.pdf

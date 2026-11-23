@@ -23,6 +23,24 @@ Each field has:
   vocabulary - (optional) correct near-miss spellings of KNOWN_WORDS in the value
   fallback - (optional, default True) if False, never guess the value from a
              document-wide pattern scan when its label isn't found
+
+Where the field crop goes (see field_crops.py; units of "h" are one line of text):
+  crop_layout - "right" (default): the aliases are labels with the value to their
+             right ("Year Built 1971"); "above": the aliases are captions printed
+             under the value ("(Mfrs. Serial No.)" under the serial number)
+  caption_aliases - (optional) extra captions printed under the value, searched
+             in addition to the aliases (e.g. "(Name and address of purchaser)")
+  crop_label_aliases - (optional) extra labels printed left of the value, for
+             cropping only (e.g. "Tube Sheet", beside the spec on the Cleaver-Brooks
+             forms, where the caption under it is often garbled)
+  crop_right - (optional, default 12) how far right of a label the crop reaches, in h
+  crop_down  - (optional, default 2.2) how far below a label the crop reaches, in h
+             (taller for a table whose header sits above the value row)
+  crop_left  - (optional, default 0.5) how far left of a label the crop reaches, in h
+             (a table header such as "Tube sheets" is centred over its columns)
+  full_line  - (optional) the value runs across the whole line, so the crop spans it
+  crop_hint  - (optional) looser regex than `pattern` for "does this zone hold a
+             value?", for values OCR tends to garble (a date read as "24.1971")
   required - if True and never found, the document should be escalated
              even if no single field had a low confidence score
 """
@@ -56,6 +74,7 @@ FIELDS = {
     "form_number": {
         "aliases": ["form"],
         "pattern": r"\bP-?\d{1,3}\b|\bFORM\s*[A-Z]?-?\d{1,3}\b",
+        "crop_right": 20,
         "required": False,
     },
     "report_date": {
@@ -67,15 +86,25 @@ FIELDS = {
             r"|\d{1,2}[/-]\d{1,2}[/-](19|20)?\d{2}"
         ),
         "skip_row_words": ["expires", "expiration", "expiry"],
+        "crop_right": 26,  # handwriting on the date line often runs past what OCR boxed
+        "crop_hint": (  # a month name, or a numeric date: enough to say "a date is here"
+            r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s*\d"
+            r"|\d{1,2}[/-]\d{1,2}[/-]\d{2}"
+        ),
         "required": False,
     },
     "year_built": {
         "aliases": ["year built"],
+        "crop_right": 8,
         "pattern": r"(18|19|20)\d{2}",
         "required": False,
     },
     "boiler_no": {
         "aliases": ["boiler no", "boiler number", "vessel no"],
+        "crop_right": 8,
+        # On these forms the number is the same as the serial number printed above "(Mfrs. Serial No.)",
+        # which survives OCR when the "Boiler No." label does not.
+        "caption_aliases": ["mfrs serial", "serial no"],
         "pattern": r"[A-Za-z0-9\-]{1,15}",
         "reject_words": LABEL_WORDS,
         "require_digit": True,
@@ -84,6 +113,7 @@ FIELDS = {
     },
     "serial_no": {
         "aliases": ["serial no", "mfrs serial", "mfr's serial", "manufacturer's serial"],
+        "crop_layout": "above",  # these are the captions printed under the number
         "pattern": r"[A-Za-z0-9\-]{1,20}",
         "reject_words": LABEL_WORDS,
         "require_digit": True,
@@ -92,6 +122,8 @@ FIELDS = {
     },
     "national_board_no": {
         "aliases": ["national board", "natl board", "nat. board", "state and state no"],
+        "crop_layout": "above",
+        "caption_aliases": ["brd no"],  # "(Nat'l Brd No.)"; crop only, as it also fuzzy-matches "Beard No."
         "pattern": r"[A-Za-z0-9\-]{1,15}",
         "reject_words": LABEL_WORDS,
         "require_digit": True,
@@ -100,6 +132,8 @@ FIELDS = {
     },
     "manufactured_by": {
         "aliases": ["manufactured by"],
+        "caption_aliases": ["address of manufacturer", "manufacturer"],
+        "full_line": True,
         "pattern": r".{3,120}",
         "look_below": False,
         "fallback": False,  # the pattern matches any row, so a guess is just noise
@@ -110,6 +144,8 @@ FIELDS = {
     },
     "manufactured_for": {
         "aliases": ["manufactured for"],
+        "caption_aliases": ["address of purchaser"],
+        "full_line": True,
         "pattern": r".{3,120}", #. includes all chars except newlines
         "look_below": False,
         "fallback": False,
@@ -122,6 +158,10 @@ FIELDS = {
         # Distinctive enough (SA###) that it's worth a full-document regex
         #fallback even when the "Material spec. no." label is unreadable.
         "aliases": ["material spec", "spec no", "material spec. no"],
+        "crop_layout": "above",  # printed under the value: "(Brand, Mat. Spec. No.; Thickness)"
+        "crop_label_aliases": ["tube sheet", "shell material"],
+        "crop_left": 3,
+        "crop_down": 4,
         # S(A/B), optional separator, 2-4 digits and a trailing letter, then an optional grade
         # such as "-70", " GR C" or "-C".
         "pattern": r"S[AB][\s_-]?\d{2,4}[A-Z]?(?:[\s_-]+(?:GR\.?\s*[A-Z0-9]{1,2}|\d{2}|[A-C]))?\b",

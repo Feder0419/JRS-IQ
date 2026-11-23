@@ -1,0 +1,140 @@
+{
+  "_note": "Where each field sits on each form type. 'exemplar' is a picture of one scan of the form (1500 px wide); 'fields' are [x1, y1, x2, y2] rectangles in that picture, covering the label, the value (handwriting included) and the caption printed under it, with a little room to spare. A page is lined up with the exemplar by form_templates.py, and these rectangles are moved to match. A field missing from 'fields' is not on that page of the form; a template with no fields marks a page we recognise that has none of the fields we collect. Add a form type by adding an entry and an exemplar image.",
+  "templates": {
+    "h3_front_b": {
+      "form": "H-3",
+      "description": "H-3 water-tube boiler report, front page, 'Identification / Boiler No.' layout (the date and signature are on this page)",
+      "exemplar": "h3_front_b.png",
+      "fields": {
+        "form_number":       [195, 35, 1235, 78],
+        "manufactured_by":   [75, 100, 1440, 168],
+        "manufactured_for":  [75, 166, 1440, 228],
+        "boiler_no":         [495, 228, 795, 292],
+        "serial_no":         [605, 228, 795, 292],
+        "national_board_no": [1005, 228, 1180, 292],
+        "year_built":        [1180, 234, 1430, 290],
+        "report_date":       [75, 530, 595, 606]
+      }
+    },
+    "h3_front_a": {
+      "form": "H-3",
+      "description": "H-3 water-tube boiler report, front page, 'Unit Identification / ID Nos.' layout (drum tables follow on this page; the date is not on it)",
+      "exemplar": "h3_front_a.png",
+      "fields": {
+        "form_number":       [275, 70, 1250, 115],
+        "manufactured_by":   [95, 148, 1440, 208],
+        "manufactured_for":  [95, 205, 1440, 268],
+        "boiler_no":         [575, 320, 835, 385],
+        "serial_no":         [665, 320, 835, 385],
+        "national_board_no": [1090, 320, 1250, 385],
+        "year_built":        [1295, 320, 1440, 385],
+        "material_spec":     [515, 625, 705, 805]
+      }
+    },
+    "h3_back": {
+      "form": "H-3",
+      "description": "H-3 back page (scanned upside down relative to the front; pages must already be upright). Drum table: the material is in the shell-plate or tube-sheet columns",
+      "exemplar": "h3_back.png",
+      "fields": {
+        "material_spec":     [390, 88, 1285, 345]
+      }
+    },
+    "h3_certificates": {
+      "form": "H-3",
+      "description": "H-3 certificates page (certificates of compliance, shop and field assembly inspection, boiler trim): none of the fields we collect is on it",
+      "exemplar": "h3_certificates.png",
+      "fields": {}
+    },
+    "p3_front": {
+      "form": "P-3",
+      "description": "P-3 boiler report (water-tube boilers, superheaters, waterwalls, economizers), front page",
+      "exemplar": "p3_front.png",
+      "fields": {
+        "form_number":       [135, 28, 1370, 102],
+        "manufactured_by":   [45, 138, 1485, 202],
+        "manufactured_for":  [45, 198, 1485, 260],
+        "boiler_no":         [490, 255, 780, 328],
+        "serial_no":         [600, 255, 780, 328],
+        "national_board_no": [1005, 255, 1195, 328],
+        "year_built":        [1190, 258, 1445, 320],
+        "report_date":       [40, 588, 595, 655]
+      }
+    },
+    "a154_front": {
+      "form": "154-A",
+      "description": "154-A boiler report (all types of boilers), front page",
+      "exemplar": "a154_front.png",
+      "fields": {
+        "form_number":       [78, 98, 220, 135],
+        "manufactured_by":   [80, 158, 1480, 230],
+        "manufactured_for":  [80, 226, 1480, 300],
+        "boiler_no":         [1000, 290, 1335, 364],
+        "serial_no":         [1110, 290, 1335, 364],
+        "national_board_no": [490, 350, 765, 408],
+        "year_built":        [985, 352, 1290, 412],
+        "report_date":       [75, 768, 550, 838]
+      }
+    },
+    "u1a_1969_front": {
+      "form": "U-1A",
+      "description": "U-1A pressure vessel report, 1969 layout, single page (certificate and date are on it)",
+      "exemplar": "u1a_1969_front.png",
+      "fields": {
+        "form_number":       [295, 128, 1180, 172],
+        "manufactured_by":   [95, 225, 1370, 295],
+        "manufactured_for":  [95, 295, 1370, 348],
+        "boiler_no":         [340, 335, 590, 402],
+        "serial_no":         [450, 335, 590, 402],
+        "national_board_no": [795, 338, 1105, 396],
+        "year_built":        [1095, 352, 1370, 398],
+        "report_date":       [65, 1380, 455, 1435],
+        "material_spec":     [190, 395, 450, 456]
+      }
+    },
+    "u1a_1981_front": {
+      "form": "U-1A",
+      "description": "U-1A pressure vessel report, 1981 (7/75 revision) layout, front page",
+      "exemplar": "u1a_1981_front.png",
+      "fields": {
+        "form_number":       [305, 68, 1170, 112],
+        "manufactured_by":   [125, 212, 1355, 272],
+        "manufactured_for":  [125, 258, 1375, 318],
+        "boiler_no":         [515, 340, 875, 405],
+        "serial_no":         [675, 340, 875, 405],
+        "national_board_no": [160, 382, 495, 448],
+        "year_built":        [475, 386, 895, 436],
+        "report_date":       [130, 1188, 385, 1252],
+        "material_spec":     [130, 774, 590, 842]
+      }
+    },
+    "u1a_1981_back": {
+      "form": "U-1A",
+      "description": "U-1A 1981 layout, back page (heads, nozzles, remarks): none of the fields we collect is on it",
+      "exemplar": "u1a_1981_back.png",
+      "fields": {}
+    },
+    "p2_front": {
+      "form": "P-2",
+      "description": "P-2 boiler report (all types except water-tube), front page",
+      "exemplar": "p2_front.png",
+      "fields": {
+        "form_number":       [130, 118, 1080, 176],
+        "manufactured_by":   [90, 198, 1400, 278],
+        "manufactured_for":  [90, 266, 1400, 335],
+        "boiler_no":         [525, 328, 815, 396],
+        "serial_no":         [650, 328, 815, 396],
+        "national_board_no": [1035, 338, 1190, 405],
+        "year_built":        [1205, 350, 1405, 400],
+        "report_date":       [75, 625, 425, 680]
+      }
+    },
+    "p2_back": {
+      "form": "P-2",
+      "description": "P-2 back page. The material is the tube sheet (item 8a)",
+      "exemplar": "p2_back.png",
+      "fields": {
+        "material_spec":     [105, 298, 615, 372]
+      }
+    }
+  }
+}

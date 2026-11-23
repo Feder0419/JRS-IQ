@@ -82,14 +82,40 @@ python field_extraction.py test_images          # existing PNGs, used as-is
    to the serial or boiler number; a serial number equal to the year built.
 6. **Merge**: a PDF's pages are combined into one entry per PDF, preferring the
    earliest page that found a field by its label.
-7. **Field crops**: for every field whose keyword (or, failing that, value
-   pattern) was located, a small image of that field is saved to
-   `output/field_crops/<page>__<field>.png`. The crop covers the label and the
-   value, widened around the label (above, right and below), because on these
-   forms the printed caption often sits under the filled-in value and OCR's own
-   pick can be the wrong cell. The idea is that OCR does what it is good at,
+7. **Field crops**: a small image of each field is saved to
+   `output/field_crops/<page>__<field>.png`. OCR does what it is good at,
    finding the printed keywords, and a vision model reads the value, handwriting
-   included, from the crop instead of the whole page.
+   included, from the crop instead of the whole page. Where the crop goes
+   depends on whether the page is a form type we have a template for:
+   - **Known form** (`form_templates.py`, `form_templates/templates.json`): the
+     page is lined up with a stored exemplar picture of the form by matching its
+     printed structure (rules, titles, captions; handwriting and typed values just
+     fail to match), which gives this scan's shift, scale and tilt. The field
+     rectangles marked on the exemplar are then moved onto the page. This does not
+     depend on OCR reading any label, and the number of matching features says
+     whether the page is that form at all. Only the fields the template lists get
+     a crop (`crop_kind` `template:<name>`); the page-level `form_template` in the
+     output says which template matched (a PDF's merged entry lists one per page
+     under `form_templates`).
+   - **Unknown form, or no match**: the crop is placed from keywords
+     (`field_crops.py`):
+   - A keyword only counts if it looks like a label: it starts its text box or
+     the box is short. A sentence that merely contains "National Board" or
+     "furnished for" is ignored.
+   - Labels ("Year Built 1971") get a zone to their right; captions
+     ("(Mfrs. Serial No.)") get a zone above them, because on these forms the
+     caption is printed under the filled-in value. Zones are generous, so
+     handwriting that sits off the line is still inside.
+   - Of the zones that contain something shaped like the value, the top-most is
+     used: the report's own data sits above the certificates further down, and
+     a repeated "Date" lower on the page is not picked over the first one.
+   - Keyword hits on the same line are combined (label plus caption, or a
+     neighbouring caption when one is garbled).
+   - If no keyword is found there is **no crop** (`crop_file` is null) and the
+     model should be given the whole page for that field. `crop_kind` says how
+     trustworthy a crop is: `label`, `caption`, `label+caption` (a value-shaped
+     box was inside), `keyword_only` (keyword found but no readable value, e.g.
+     handwriting), `value_only` (no keyword, only a pattern match).
 8. **Review**: fields with confidence below 0.75, found only by the regex
    fallback, or failing a sanity check are flagged. If `ANTHROPIC_API_KEY` is set
    they also get a second opinion from the LLM verifier, which looks at the same
@@ -119,6 +145,11 @@ can still have `rejected` boxes, so a second reader can be pointed at them.
 | `field_dictionary.py` | Field definitions (aliases, value regex, required flag), confidence threshold, fuzzy-match tolerance |
 | `pdf_preprocess.py` | PDF to PNG at 300 DPI, with optional denoise and invert. Also runnable on its own |
 | `llm_verify.py` | Vision-LLM second opinion on low-confidence fields |
+| `form_templates.py` | Lines a page up with a known form type and returns its field rectangles (see step 7) |
+| `form_templates/` | `templates.json` (where each field sits on each form type) and one exemplar image per template |
+| `field_crops.py` | Keyword-based crop placement, used when no template matches (see step 7) |
+| `crop_eval.py` | Checks that every crop fully contains its hand-marked target in `crop_targets.json` |
+| `crop_targets.json` | Hand-marked rectangle (label/value/caption) each crop must contain, for the sample reports |
 | `evaluate.py` | Scores a pipeline output JSON against `ground_truth.json` |
 | `ground_truth.json` | Hand-checked field values for the sample reports |
 | `PaddleOcrTest.py` | Deprecated scratch script: prints raw OCR text and scores for PNGs in `good_test_images/` |
@@ -137,10 +168,18 @@ can still have `rejected` boxes, so a second reader can be pointed at them.
 - LLM verification is **not active**: with no `ANTHROPIC_API_KEY` set it does
   nothing, so every low-confidence or fallback field is escalated to a human.
   Field crops are saved either way.
-- Crops are only as good as keyword finding. A keyword can match a sentence of
-  body text instead of the real field label (e.g. "National Board" inside a
-  paragraph), giving a crop of the wrong area; a field whose label OCR garbled
-  gets no keyword match at all. Check a sample of crops by eye.
+- Form templates exist for H-3 (front in two layouts, back, certificates page),
+  P-3, 154-A, P-2 (front, back) and U-1A (1969 front; 1981 front and back). A page
+  that matches none (a new form type or layout, or a very degraded scan) falls back
+  to keyword crops, and pages must already be upright. Each template was drawn from
+  one exemplar page, and the 1981 U-1A front has had no independent test page.
+  Add a template for each new layout (see `form_templates/templates.json`).
+- Crops placed from keywords are only as good as keyword finding: a field whose label and caption
+  OCR both garbled gets no crop at all (the model then reads the full page).
+  `python crop_eval.py <output folder>` checks the crops of the sample reports
+  against `crop_targets.json` (27/27 contain their whole target, averaging about
+  4% of the page). Like the extraction rules, the crop rules were tuned on only 3
+  reports, so mark targets for new ones before trusting that number.
 - Before enabling it, check the model name hardcoded in `llm_verify.py`
   (`claude-sonnet-5`) is a valid model ID. The call also has no error handling
   yet, so an API failure would stop the run.
@@ -163,5 +202,7 @@ Edit `FIELDS` in `field_dictionary.py`: add label `aliases`, a `pattern` for
 the value, and set `required` if a missing field should flag the document.
 Optional per-field settings: `reject_words`, `require_digit`, `fallback` (guess
 from a document-wide scan), `look_below` (read the cell under the label),
-`min_alpha_ratio`, `require_capital`, `skip_row_words` and `vocabulary`. They are
+`min_alpha_ratio`, `require_capital`, `skip_row_words` and `vocabulary`. Crop
+placement has its own settings (`crop_layout`, `caption_aliases`,
+`crop_label_aliases`, `crop_right`, `crop_left`, `crop_down`, `full_line`, `crop_hint`). They are
 documented at the top of `field_dictionary.py`.
