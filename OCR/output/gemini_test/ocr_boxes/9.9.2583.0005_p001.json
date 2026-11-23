@@ -1,0 +1,375 @@
+{
+ "image": "9.9.2583.0005_p001.png",
+ "boxes": [
+  {
+   "text": "MAHUFACTURERS' DATA REPORT",
+   "score": 0.9817,
+   "box": [
+    1092,
+    187,
+    1990,
+    255
+   ]
+  },
+  {
+   "text": "As roquired by the Provlakons of the A S. M. E Code Ralee and",
+   "score": 0.8829,
+   "box": [
+    800,
+    260,
+    2002,
+    323
+   ]
+  },
+  {
+   "text": "Notlondl Boozd",
+   "score": 0.7447,
+   "box": [
+    1994,
+    264,
+    2277,
+    308
+   ]
+  },
+  {
+   "text": "COLUMBIA. BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+   "score": 0.9882,
+   "box": [
+    929,
+    425,
+    2470,
+    489
+   ]
+  },
+  {
+   "text": "1. Manufactured by",
+   "score": 0.9919,
+   "box": [
+    148,
+    446,
+    573,
+    493
+   ]
+  },
+  {
+   "text": "2. Manufactured for.",
+   "score": 0.9816,
+   "box": [
+    148,
+    565,
+    619,
+    613
+   ]
+  },
+  {
+   "text": "(Nams and addreax of purchass",
+   "score": 0.851,
+   "box": [
+    1776,
+    596,
+    2364,
+    640
+   ]
+  },
+  {
+   "text": "97550",
+   "score": 0.9999,
+   "box": [
+    2454,
+    643,
+    2652,
+    715
+   ]
+  },
+  {
+   "text": "MINIATURE",
+   "score": 0.9833,
+   "box": [
+    772,
+    682,
+    1071,
+    732
+   ]
+  },
+  {
+   "text": "(Mixrn. Bae. Ha.)",
+   "score": 0.7245,
+   "box": [
+    2486,
+    705,
+    2819,
+    764
+   ]
+  },
+  {
+   "text": "Natl, Board No. ..67630.",
+   "score": 0.8172,
+   "box": [
+    883,
+    780,
+    1538,
+    869
+   ]
+  },
+  {
+   "text": " Year bullt. 1966",
+   "score": 0.8714,
+   "box": [
+    1891,
+    789,
+    2331,
+    871
+   ]
+  },
+  {
+   "text": "(stato and Staie No.)",
+   "score": 0.8731,
+   "box": [
+    272,
+    849,
+    686,
+    898
+   ]
+  },
+  {
+   "text": "4. The chemical and physical propertles of all parts meet the requiremnents of material specincations of the A. S. M. E. Boller Code",
+   "score": 0.9609,
+   "box": [
+    148,
+    913,
+    2917,
+    985
+   ]
+  },
+  {
+   "text": "The design, construction and workmanshlp conform to A. S. M. E. Rules Sectlon ...",
+   "score": 0.9332,
+   "box": [
+    147,
+    1041,
+    1894,
+    1107
+   ]
+  },
+  {
+   "text": "\u738b\u5de5",
+   "score": 0.5781,
+   "box": [
+    2160,
+    1045,
+    2325,
+    1091
+   ]
+  },
+  {
+   "text": "Remarks: Manufacturer's Parts Data Records properly Identided and migred by Conmissioned Iospectors, have been furnlabed for the",
+   "score": 0.9543,
+   "box": [
+    147,
+    1161,
+    2924,
+    1229
+   ]
+  },
+  {
+   "text": "following Items of th\u00eds roport: ...",
+   "score": 0.9029,
+   "box": [
+    149,
+    1297,
+    849,
+    1352
+   ]
+  },
+  {
+   "text": "NONE",
+   "score": 0.9994,
+   "box": [
+    1387,
+    1296,
+    1553,
+    1341
+   ]
+  },
+  {
+   "text": "We certify the statement in this data report to be correct",
+   "score": 0.9581,
+   "box": [
+    151,
+    1661,
+    1319,
+    1716
+   ]
+  },
+  {
+   "text": "COLUMBIA BOILER COMPANY, OF POTTSTOWN",
+   "score": 0.963,
+   "box": [
+    1538,
+    1767,
+    2675,
+    1834
+   ]
+  },
+  {
+   "text": "Heade0c. 31, 1967",
+   "score": 0.7017,
+   "box": [
+    2317,
+    1816,
+    2944,
+    1904
+   ]
+  },
+  {
+   "text": "By",
+   "score": 0.9346,
+   "box": [
+    1532,
+    1891,
+    1729,
+    1963
+   ]
+  },
+  {
+   "text": "CERTIFICATE OF BOILER SHOP INSPECTION",
+   "score": 0.9985,
+   "box": [
+    965,
+    2149,
+    2113,
+    2216
+   ]
+  },
+  {
+   "text": "97550",
+   "score": 0.9998,
+   "box": [
+    1509,
+    2288,
+    1690,
+    2361
+   ]
+  },
+  {
+   "text": "Insurance Companies' Berial Number",
+   "score": 0.9631,
+   "box": [
+    392,
+    2330,
+    1168,
+    2385
+   ]
+  },
+  {
+   "text": "BOILER WORKS OF .... COLUMBLA BOLER COMPANY OF POTTSTOWN at POTTSTOWN, Ph......",
+   "score": 0.9208,
+   "box": [
+    389,
+    2428,
+    2666,
+    2499
+   ]
+  },
+  {
+   "text": "I, the undersigned, Inspector of Steam Bollers employed by THE FIDELITY & CASUAL/TY COMPANY",
+   "score": 0.9897,
+   "box": [
+    385,
+    2537,
+    2678,
+    2614
+   ]
+  },
+  {
+   "text": "of ...... NEW YORK....., have inspected parts of the boer referred to as Data Items ....",
+   "score": 0.9004,
+   "box": [
+    385,
+    2653,
+    2371,
+    2723
+   ]
+  },
+  {
+   "text": "and have examined manufacturers' parts data for Items",
+   "score": 0.9836,
+   "box": [
+    754,
+    2770,
+    1940,
+    2830
+   ]
+  },
+  {
+   "text": "and certify that the material, constructlon and workmanahlp are In accordance with A. 8, M. E.",
+   "score": 0.9762,
+   "box": [
+    663,
+    2875,
+    2673,
+    2944
+   ]
+  },
+  {
+   "text": "Boller Code Rule",
+   "score": 0.9967,
+   "box": [
+    390,
+    3001,
+    776,
+    3055
+   ]
+  },
+  {
+   "text": "3767",
+   "score": 0.9852,
+   "box": [
+    2296,
+    3008,
+    2617,
+    3124
+   ]
+  },
+  {
+   "text": "DATEUN 2.31966 19",
+   "score": 0.8788,
+   "box": [
+    374,
+    3063,
+    1463,
+    3186
+   ]
+  },
+  {
+   "text": "Commimion",
+   "score": 0.9236,
+   "box": [
+    2042,
+    3099,
+    2302,
+    3155
+   ]
+  },
+  {
+   "text": "N. B. and No.",
+   "score": 0.9535,
+   "box": [
+    2405,
+    3130,
+    2671,
+    3190
+   ]
+  },
+  {
+   "text": "Inspector",
+   "score": 0.9495,
+   "box": [
+    1206,
+    3145,
+    1385,
+    3198
+   ]
+  }
+ ]
+}

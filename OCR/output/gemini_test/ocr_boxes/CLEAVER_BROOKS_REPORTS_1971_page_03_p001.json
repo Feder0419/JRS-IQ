@@ -1,0 +1,1015 @@
+{
+ "image": "CLEAVER_BROOKS_REPORTS_1971_page_03_p001.png",
+ "boxes": [
+  {
+   "text": "L-53075",
+   "score": 0.9982,
+   "box": [
+    1166,
+    107,
+    1400,
+    183
+   ]
+  },
+  {
+   "text": "L4994",
+   "score": 0.9197,
+   "box": [
+    1736,
+    109,
+    1901,
+    167
+   ]
+  },
+  {
+   "text": "47508",
+   "score": 0.9471,
+   "box": [
+    2011,
+    115,
+    2148,
+    176
+   ]
+  },
+  {
+   "text": "UNIT",
+   "score": 0.9783,
+   "box": [
+    927,
+    141,
+    1027,
+    182
+   ]
+  },
+  {
+   "text": "6",
+   "score": 0.7408,
+   "box": [
+    181,
+    168,
+    200,
+    179
+   ]
+  },
+  {
+   "text": "5",
+   "score": 0.0722,
+   "box": [
+    406,
+    164,
+    415,
+    177
+   ]
+  },
+  {
+   "text": "82186",
+   "score": 0.9974,
+   "box": [
+    1166,
+    169,
+    1338,
+    236
+   ]
+  },
+  {
+   "text": "\u8d44",
+   "score": 0.1619,
+   "box": [
+    615,
+    176,
+    634,
+    196
+   ]
+  },
+  {
+   "text": "8.0.",
+   "score": 0.6794,
+   "box": [
+    921,
+    181,
+    1015,
+    234
+   ]
+  },
+  {
+   "text": "o7",
+   "score": 0.5337,
+   "box": [
+    902,
+    192,
+    913,
+    201
+   ]
+  },
+  {
+   "text": "FORN P-2 MANUFAOTURERS DATA REPORT FOR ALL TYPES:OF BOILERS EXCEPT WATER-TUBE",
+   "score": 0.9743,
+   "box": [
+    231,
+    207,
+    2320,
+    339
+   ]
+  },
+  {
+   "text": "CB-500, 150 IbStm.",
+   "score": 0.8939,
+   "box": [
+    2013,
+    209,
+    2385,
+    282
+   ]
+  },
+  {
+   "text": "\u57ce",
+   "score": 0.1631,
+   "box": [
+    212,
+    276,
+    223,
+    285
+   ]
+  },
+  {
+   "text": "C",
+   "score": 0.6583,
+   "box": [
+    236,
+    281,
+    482,
+    312
+   ]
+  },
+  {
+   "text": "As Reqmired by the Provisioms of the AsME Code Mules",
+   "score": 0.9071,
+   "box": [
+    723,
+    280,
+    1829,
+    368
+   ]
+  },
+  {
+   "text": "Part No. 270.461",
+   "score": 0.9848,
+   "box": [
+    1922,
+    327,
+    2229,
+    385
+   ]
+  },
+  {
+   "text": "Cleaver-Brooks Divislon of Aqua-Chem, Inc., Milwaukee, Wisconsin",
+   "score": 0.9925,
+   "box": [
+    667,
+    346,
+    1828,
+    432
+   ]
+  },
+  {
+   "text": "1. Manulactured be",
+   "score": 0.8989,
+   "box": [
+    165,
+    361,
+    478,
+    404
+   ]
+  },
+  {
+   "text": "(Name and address of manufacturer)",
+   "score": 0.998,
+   "box": [
+    1028,
+    423,
+    1523,
+    472
+   ]
+  },
+  {
+   "text": "? Vammmmml ( National Food Stores. Inc., Denver, Colorado",
+   "score": 0.8745,
+   "box": [
+    150,
+    441,
+    1890,
+    543
+   ]
+  },
+  {
+   "text": "(Same and address of purthaser)",
+   "score": 0.9789,
+   "box": [
+    1048,
+    521,
+    1493,
+    567
+   ]
+  },
+  {
+   "text": "Internally Fired",
+   "score": 0.9986,
+   "box": [
+    395,
+    538,
+    666,
+    590
+   ]
+  },
+  {
+   "text": "3. Type ....",
+   "score": 0.926,
+   "box": [
+    156,
+    556,
+    356,
+    600
+   ]
+  },
+  {
+   "text": "Boiler No. ..47508",
+   "score": 0.934,
+   "box": [
+    900,
+    564,
+    1258,
+    627
+   ]
+  },
+  {
+   "text": "(H.R.T.Loco. Compact Marine, Miniature)",
+   "score": 0.9448,
+   "box": [
+    306,
+    589,
+    889,
+    645
+   ]
+  },
+  {
+   "text": "25502. Year Built 1971",
+   "score": 0.9403,
+   "box": [
+    1807,
+    582,
+    2378,
+    677
+   ]
+  },
+  {
+   "text": "(Mfrs. Serial No.)",
+   "score": 0.9472,
+   "box": [
+    1128,
+    619,
+    1363,
+    660
+   ]
+  },
+  {
+   "text": "(State and State No.)",
+   "score": 0.9977,
+   "box": [
+    1426,
+    631,
+    1698,
+    672
+   ]
+  },
+  {
+   "text": "4. The chemical and physical properties of all parts meet the sequirements of material specifications of the ASME BOIL.ER AND PRESSURE",
+   "score": 0.9827,
+   "box": [
+    152,
+    648,
+    2357,
+    762
+   ]
+  },
+  {
+   "text": "(Nath. Board No.)",
+   "score": 0.9246,
+   "box": [
+    1773,
+    641,
+    2007,
+    686
+   ]
+  },
+  {
+   "text": "Remarks: Manufacturers' Data Records properly identified and signed by Commissioned Inspectors have been furnished for the tollowing",
+   "score": 0.9919,
+   "box": [
+    188,
+    795,
+    2349,
+    908
+   ]
+  },
+  {
+   "text": "items of this report:",
+   "score": 0.997,
+   "box": [
+    187,
+    846,
+    509,
+    890
+   ]
+  },
+  {
+   "text": "(Name of Part - Stem nomber, manu\u00edacturer's name, and identifying stamp)",
+   "score": 0.951,
+   "box": [
+    737,
+    896,
+    1769,
+    962
+   ]
+  },
+  {
+   "text": "We certify the statement in this data report to be correct.",
+   "score": 0.9811,
+   "box": [
+    183,
+    995,
+    1088,
+    1067
+   ]
+  },
+  {
+   "text": "Date September 1719 .71.... Signed",
+   "score": 0.9714,
+   "box": [
+    133,
+    1070,
+    872,
+    1151
+   ]
+  },
+  {
+   "text": "Cleaver-Brooks Division",
+   "score": 0.9997,
+   "box": [
+    1036,
+    1095,
+    1439,
+    1150
+   ]
+  },
+  {
+   "text": "By. El R. Struds",
+   "score": 0.7725,
+   "box": [
+    1565,
+    1094,
+    2186,
+    1202
+   ]
+  },
+  {
+   "text": "(Manufacturer)",
+   "score": 0.9588,
+   "box": [
+    1129,
+    1151,
+    1337,
+    1193
+   ]
+  },
+  {
+   "text": "Earl B. stougt",
+   "score": 0.7343,
+   "box": [
+    1661,
+    1172,
+    2124,
+    1266
+   ]
+  },
+  {
+   "text": "8",
+   "score": 0.8105,
+   "box": [
+    2100,
+    1170,
+    2221,
+    1266
+   ]
+  },
+  {
+   "text": "Certifiuate of Authorization Expires",
+   "score": 0.9693,
+   "box": [
+    1070,
+    1214,
+    1629,
+    1273
+   ]
+  },
+  {
+   "text": "1-15-74",
+   "score": 0.9988,
+   "box": [
+    1791,
+    1262,
+    1979,
+    1321
+   ]
+  },
+  {
+   "text": "19",
+   "score": 0.9991,
+   "box": [
+    2115,
+    1259,
+    2160,
+    1289
+   ]
+  },
+  {
+   "text": "CERTIFICATE OF SHOP INSPECTION",
+   "score": 0.9998,
+   "box": [
+    860,
+    1312,
+    1612,
+    1390
+   ]
+  },
+  {
+   "text": "BOILER MADE BY",
+   "score": 0.9963,
+   "box": [
+    179,
+    1374,
+    500,
+    1420
+   ]
+  },
+  {
+   "text": "Cleaver-Brooks Division",
+   "score": 0.9986,
+   "box": [
+    699,
+    1367,
+    1102,
+    1423
+   ]
+  },
+  {
+   "text": "Lebanon, Pennsyivania",
+   "score": 0.9748,
+   "box": [
+    1614,
+    1401,
+    1999,
+    1457
+   ]
+  },
+  {
+   "text": "I the underigned. holding a valied commiwion imued bv the Natomal Board ot Boiker and Pressute Vessel Inspectors and or the State or",
+   "score": 0.9282,
+   "box": [
+    175,
+    1424,
+    2273,
+    1536
+   ]
+  },
+  {
+   "text": "at",
+   "score": 0.9029,
+   "box": [
+    1395,
+    1427,
+    1434,
+    1455
+   ]
+  },
+  {
+   "text": "Provime of",
+   "score": 0.9031,
+   "box": [
+    175,
+    1476,
+    357,
+    1512
+   ]
+  },
+  {
+   "text": "and employed be",
+   "score": 0.9223,
+   "box": [
+    585,
+    1488,
+    853,
+    1532
+   ]
+  },
+  {
+   "text": "Hartford Steam Inspection & Insurance Co.",
+   "score": 0.9959,
+   "box": [
+    975,
+    1484,
+    1690,
+    1549
+   ]
+  },
+  {
+   "text": "Hartford, Conn.",
+   "score": 0.9979,
+   "box": [
+    1924,
+    1518,
+    2190,
+    1566
+   ]
+  },
+  {
+   "text": "of",
+   "score": 0.9998,
+   "box": [
+    1847,
+    1535,
+    1885,
+    1566
+   ]
+  },
+  {
+   "text": "paral daa ee  s",
+   "score": 0.6494,
+   "box": [
+    169,
+    1573,
+    636,
+    1623
+   ]
+  },
+  {
+   "text": "None",
+   "score": 0.9999,
+   "box": [
+    1219,
+    1588,
+    1319,
+    1631
+   ]
+  },
+  {
+   "text": "and have examined manufactuier's",
+   "score": 0.932,
+   "box": [
+    1732,
+    1581,
+    2267,
+    1631
+   ]
+  },
+  {
+   "text": "and state that. fo the bet of ms kuonledge au! telet the mamutaututer has cotruted dhis boiler n ducondane with the applicable",
+   "score": 0.7514,
+   "box": [
+    169,
+    1612,
+    2262,
+    1723
+   ]
+  },
+  {
+   "text": "SCOHOL O The ASME BOLIR AND PRESSE RE ESNL CODI",
+   "score": 0.7565,
+   "box": [
+    165,
+    1655,
+    1176,
+    1720
+   ]
+  },
+  {
+   "text": "Be g   ehe hr    c me ns   o mg og he e",
+   "score": 0.5912,
+   "box": [
+    164,
+    1722,
+    2257,
+    1837
+   ]
+  },
+  {
+   "text": "drad  s matues d e t oe. nr  mon nr sopler sal  ae  n maner for am",
+   "score": 0.5494,
+   "box": [
+    160,
+    1763,
+    2252,
+    1877
+   ]
+  },
+  {
+   "text": "persomal injune or propene damage or a hoss of art lind atieung fom o cmnrted with this iypriton",
+   "score": 0.726,
+   "box": [
+    158,
+    1802,
+    1766,
+    1899
+   ]
+  },
+  {
+   "text": "Date",
+   "score": 0.8667,
+   "box": [
+    155,
+    1857,
+    237,
+    1900
+   ]
+  },
+  {
+   "text": "Frank Berghotmy",
+   "score": 0.9294,
+   "box": [
+    295,
+    1961,
+    733,
+    2041
+   ]
+  },
+  {
+   "text": "PA WC 560",
+   "score": 0.9982,
+   "box": [
+    1492,
+    1957,
+    1779,
+    2018
+   ]
+  },
+  {
+   "text": "",
+   "score": 0.0,
+   "box": [
+    1137,
+    1971,
+    1334,
+    2009
+   ]
+  },
+  {
+   "text": "NB 3113",
+   "score": 0.9997,
+   "box": [
+    1885,
+    1972,
+    2096,
+    2032
+   ]
+  },
+  {
+   "text": "Sal Bourd or S2tr and No",
+   "score": 0.5543,
+   "box": [
+    1616,
+    2019,
+    1988,
+    2064
+   ]
+  },
+  {
+   "text": "We s that the fheld mbt of all pas ot ths tler ontom wn the tegut ents ot St TON Iof the ASE Bo IR SD PREs",
+   "score": 0.651,
+   "box": [
+    103,
+    2042,
+    2284,
+    2159
+   ]
+  },
+  {
+   "text": "SURE LSSRCODI",
+   "score": 0.7308,
+   "box": [
+    101,
+    2083,
+    446,
+    2127
+   ]
+  },
+  {
+   "text": "Date",
+   "score": 0.9686,
+   "box": [
+    93,
+    2142,
+    173,
+    2181
+   ]
+  },
+  {
+   "text": "010",
+   "score": 0.2626,
+   "box": [
+    524,
+    2160,
+    568,
+    2194
+   ]
+  },
+  {
+   "text": "Signed",
+   "score": 0.9611,
+   "box": [
+    732,
+    2167,
+    841,
+    2206
+   ]
+  },
+  {
+   "text": "B",
+   "score": 0.4048,
+   "box": [
+    1493,
+    2196,
+    1540,
+    2234
+   ]
+  },
+  {
+   "text": "Ass mble",
+   "score": 0.7706,
+   "box": [
+    1104,
+    2214,
+    1235,
+    2248
+   ]
+  },
+  {
+   "text": "O icate o tn to s t",
+   "score": 0.582,
+   "box": [
+    93,
+    2241,
+    755,
+    2299
+   ]
+  },
+  {
+   "text": "Represrntattne",
+   "score": 0.768,
+   "box": [
+    1820,
+    2243,
+    2020,
+    2281
+   ]
+  },
+  {
+   "text": "02l1190s",
+   "score": 0.2641,
+   "box": [
+    1045,
+    2277,
+    1289,
+    2320
+   ]
+  },
+  {
+   "text": "A",
+   "score": 0.5459,
+   "box": [
+    848,
+    2303,
+    967,
+    2332
+   ]
+  },
+  {
+   "text": "10",
+   "score": 0.3662,
+   "box": [
+    1593,
+    2299,
+    1633,
+    2329
+   ]
+  },
+  {
+   "text": "CERTIFICATE OF FIELD ASSEMBLY INSPECTION",
+   "score": 0.9909,
+   "box": [
+    691,
+    2371,
+    1690,
+    2460
+   ]
+  },
+  {
+   "text": "I. the undeisgued. hoding a sabud onaission sste be he Saoonal Bosnd ot Roiler and Pressune Veesed Inspetots and or the State or",
+   "score": 0.8034,
+   "box": [
+    138,
+    2425,
+    2228,
+    2545
+   ]
+  },
+  {
+   "text": "P0",
+   "score": 0.4802,
+   "box": [
+    137,
+    2485,
+    311,
+    2519
+   ]
+  },
+  {
+   "text": "and esoploved be",
+   "score": 0.922,
+   "box": [
+    546,
+    2500,
+    810,
+    2539
+   ]
+  },
+  {
+   "text": "have compated the satemenis in dhis msnula turs date repon uuh the deooibd bonler and state thast the parts retered to as data",
+   "score": 0.7841,
+   "box": [
+    131,
+    2518,
+    2223,
+    2643
+   ]
+  },
+  {
+   "text": "C",
+   "score": 0.5131,
+   "box": [
+    1799,
+    2550,
+    1842,
+    2582
+   ]
+  },
+  {
+   "text": "",
+   "score": 0.0,
+   "box": [
+    131,
+    2584,
+    216,
+    2611
+   ]
+  },
+  {
+   "text": "   he      b e            ",
+   "score": 0.631,
+   "box": [
+    129,
+    2618,
+    2219,
+    2736
+   ]
+  },
+  {
+   "text": "91",
+   "score": 0.3566,
+   "box": [
+    1037,
+    2620,
+    1118,
+    2647
+   ]
+  },
+  {
+   "text": "huded on the certfhoate ot shop inspe hon have been inspected by me",
+   "score": 0.897,
+   "box": [
+    1167,
+    2619,
+    2220,
+    2698
+   ]
+  },
+  {
+   "text": "auondane wth the applaable stion ot dhe ASUI BOLR ND PRISSTRE VFSSFI CODE The desoibed boter was impeded",
+   "score": 0.8296,
+   "box": [
+    123,
+    2652,
+    2220,
+    2781
+   ]
+  },
+  {
+   "text": "sned subjected to a hodosiatie test ot .",
+   "score": 0.7973,
+   "box": [
+    126,
+    2717,
+    717,
+    2774
+   ]
+  },
+  {
+   "text": "149.",
+   "score": 0.5331,
+   "box": [
+    1168,
+    2759,
+    1231,
+    2798
+   ]
+  },
+  {
+   "text": "By sgming this cettificate neither dhe Inypeton non his cmpiover makes ans wanants, cxptessed or implied. concerning the boiter",
+   "score": 0.8929,
+   "box": [
+    123,
+    2774,
+    2215,
+    2900
+   ]
+  },
+  {
+   "text": "desn ed mn ths mamutactuters dats report. Futhctmone netber dhe inosper or nor hos cmployet shan mt ladie in am mannet for ane",
+   "score": 0.6947,
+   "box": [
+    118,
+    2816,
+    2208,
+    2938
+   ]
+  },
+  {
+   "text": "peronal itguns or propests damage or a loss ot aos kind atusing trom ot conncted with this iospection.",
+   "score": 0.816,
+   "box": [
+    118,
+    2856,
+    1730,
+    2959
+   ]
+  },
+  {
+   "text": "Date",
+   "score": 0.997,
+   "box": [
+    115,
+    2903,
+    200,
+    2944
+   ]
+  },
+  {
+   "text": "1",
+   "score": 0.8274,
+   "box": [
+    808,
+    2933,
+    852,
+    2967
+   ]
+  },
+  {
+   "text": "<onnniesions",
+   "score": 0.7848,
+   "box": [
+    1093,
+    3017,
+    1290,
+    3057
+   ]
+  },
+  {
+   "text": "Rse221",
+   "score": 0.5307,
+   "box": [
+    539,
+    3028,
+    658,
+    3059
+   ]
+  },
+  {
+   "text": "Natt. Board er State and No.",
+   "score": 0.9219,
+   "box": [
+    1572,
+    3068,
+    1948,
+    3113
+   ]
+  }
+ ]
+}

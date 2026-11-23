@@ -15,7 +15,7 @@ Usage: python field_extraction.py [input] [--denoise] [--invert]
   to those PDF-derived pages only. Existing PNGs are used as-is.
 Outputs: output/field_index.csv, output/field_index.json, output/field_crops/*.png
 """
-
+from __future__ import annotations
 import argparse
 import csv
 import json
@@ -25,7 +25,6 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from pathlib import Path
 
-from paddleocr import PaddleOCR
 from PIL import Image
 
 from field_crops import locate_field_crops
@@ -33,6 +32,10 @@ from form_templates import match_page
 from field_dictionary import ALIAS_FUZZ_RATIO, FIELD_CONFIDENCE_THRESHOLD, FIELDS, KNOWN_WORDS
 from llm_verify import verify_field
 from pdf_preprocess import pdf_to_pngs
+
+import os
+from google import genai
+from google.genai import types
 
 OUTPUT_DIR = Path("output")
 OUTPUT_CSV = OUTPUT_DIR / "field_index.csv"
@@ -84,6 +87,49 @@ def run_ocr(ocr: PaddleOCR, image_path: Path) -> list[OcrBox]:
             boxes.append(OcrBox(text=text, score=float(score), box=[int(v) for v in box]))
     return boxes
 
+def run_gemini(file_path: Path) -> dict:
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+
+    mime = (
+        "application/pdf"
+        if file_path.suffix.lower() == ".pdf"
+        else "image/png"
+    )
+
+    prompt = f"""
+    Read this scanned manufacturing report.
+
+    Extract these fields:
+    {list(FIELDS.keys())}
+
+    Return a JSON object with exactly those field names.
+    Each field must contain:
+      "value": extracted text or null
+      "confidence": number between 0 and 1
+
+    Confidence is your estimated confidence in the reading.
+
+    Preserve the text as written in the document.
+    Do not guess unreadable information.
+    Use null when a field cannot be read.
+    Return only JSON.
+    """
+
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=[
+            types.Part.from_bytes(
+                data=file_path.read_bytes(),
+                mime_type=mime
+            ),
+            prompt
+        ],
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json"
+        )
+    )
+
+    return json.loads(response.text)
 
 def group_into_rows(boxes: list[OcrBox]) -> list[list[OcrBox]]:
     """Group boxes into text rows by vertical-center overlap, tolerant of skew."""
@@ -621,33 +667,197 @@ def main():
     OCR_BOXES_DIR = OUTPUT_DIR / "ocr_boxes"
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    PDF_INPUT_DIR.mkdir(exist_ok=True)
-    # Turn the input (folder, PDF or PNG) into (document, page images) pairs.
-    documents = collect_images(args.input, args.denoise, args.invert)
-    if not documents:
-        print(f"No PDFs or PNGs found in {args.input}. Drop files there and re-run.")
-        return
+    
+    # Find original PDF/PNG files WITHOUT rendering them yet.
+    if args.input.is_dir():
+        sources = sorted(
+            p for p in args.input.iterdir()
+            if p.is_file() and p.suffix.lower() in (".pdf", ".png")
+        )
+    elif args.input.is_file() and args.input.suffix.lower() in (".pdf", ".png"):
+        sources = [args.input]
+    else:
+        sources = []
 
-    # Load the OCR models once up front (slow) and reuse them for every page.
-    # The orientation/unwarping steps are turned off to keep runs faster.
-    ocr = PaddleOCR(
-        lang="en",
-        device="gpu:0",  # first NVIDIA GPU; use "cpu" to force CPU
-        use_doc_orientation_classify=False,
-        use_doc_unwarping=False,
-        use_textline_orientation=False,
-    )
+    if not sources:
+        print(f"No PDFs or PNGs found in {args.input}.")
+        return
 
     FIELD_CROPS_DIR.mkdir(parents=True, exist_ok=True)
 
+    # Do not initialize PaddleOCR unless Gemini misses a field.
+    ocr = None
     all_results = []
-    for doc_name, image_paths in documents:
-        page_results = []
-        for image_path in image_paths:
-            print(f"Processing {image_path.name}...")
-            page_results.append(process_document(ocr, image_path))
-        # One entry per PDF: merge its pages' results together.
-        all_results.append(merge_pages(doc_name, page_results))
+
+    def has_value(value):
+        return value is not None and bool(str(value).strip())
+
+    def normalize(value):
+        return re.sub(r"[^a-z0-9]", "", str(value or "").lower())
+
+    for source in sources:
+        doc_name = source.name
+        print(f"\nRunning Gemini on {doc_name}...")
+
+        # STEP 1: Send original PDF/PNG directly to Gemini.
+        gemini_results = run_gemini(source)
+
+        # STEP 2: Check which fields Gemini missed.
+        missing_fields = [
+            name for name in FIELDS
+            if not has_value(
+                (gemini_results.get(name) or {}).get("value")
+            )
+        ]
+
+        paddle_ran = bool(missing_fields)
+
+        if missing_fields:
+            print(f"Gemini missing: {missing_fields}")
+            print("Running PaddleOCR fallback...")
+
+            # Initialize PaddleOCR only when needed.
+            if ocr is None:
+                from paddleocr import PaddleOCR
+
+                #If have enough compute try: PP-OCRv6_medium_det, PP-OCRv6_medium_rec
+                ocr = PaddleOCR(
+                    lang="en",
+                    device="cpu",
+                    text_detection_model_name="PP-OCRv6_small_det",
+                    text_recognition_model_name="PP-OCRv6_small_rec",
+                    enable_mkldnn=False,
+                    cpu_threads=1,
+                    use_doc_orientation_classify=False,
+                    use_doc_unwarping=False,
+                    use_textline_orientation=False,
+                )
+
+            # Render only this document and run existing OCR.
+            rendered = collect_images(
+                source, args.denoise, args.invert
+            )
+            _, image_paths = rendered[0]
+
+            page_results = []
+            for image_path in image_paths:
+                print(f"Processing {image_path.name}...")
+                page_results.append(
+                    process_document(ocr, image_path)
+                )
+
+            merged = merge_pages(doc_name, page_results)
+
+        else:
+            print("All fields found. Skipping PaddleOCR.")
+
+            # Build the same output structure without OCR.
+            merged = {
+                "document": doc_name,
+                "pages": [],
+                "ocr_boxes_files": [],
+                "fields": {
+                    name: {
+                        "value": None,
+                        "confidence": None,
+                        "llm_checked": False,
+                        "boxes": [],
+                        "rejected": [],
+                        "crop_file": None,
+                        "crop_box": None,
+                        "crop_kind": None,
+                    }
+                    for name in FIELDS
+                },
+                "escalate": False,
+                "escalation_reasons": [],
+            }
+
+        # Reset PaddleOCR warnings.
+        # Review flags will be rebuilt from final selected values.
+        merged["escalate"] = False
+        merged["escalation_reasons"] = []
+
+        # STEP 3: Merge Gemini results with optional PaddleOCR.
+        for name in FIELDS:
+            field = merged["fields"][name]
+
+            p_value = field["value"]
+            p_conf = field["confidence"]
+
+            g = gemini_results.get(name) or {}
+            g_value = g.get("value")
+            g_conf = g.get("confidence")
+
+            agree = (
+                has_value(g_value)
+                and has_value(p_value)
+                and normalize(g_value) == normalize(p_value)
+            )
+
+            if agree:
+                selected = g_value
+                source_model = "both"
+                status = "agreed"
+
+            elif has_value(g_value):
+                selected = g_value
+                source_model = "gemini"
+                status = (
+                    "review_required"
+                    if has_value(p_value)
+                    else "gemini_only"
+                )
+
+            elif has_value(p_value):
+                selected = p_value
+                source_model = "paddleocr"
+                status = "review_required"
+
+            else:
+                selected = None
+                source_model = "none"
+                status = "not_found"
+
+            # Preserve both readings.
+            field["paddleocr"] = {
+                "value": p_value,
+                "confidence": p_conf,
+                "ran": paddle_ran,
+            }
+
+            field["gemini"] = {
+                "value": g_value,
+                "confidence": g_conf,
+            }
+
+            field["selection"] = {
+                "value": selected,
+                "source": source_model,
+                "status": status,
+            }
+
+            field["value"] = selected
+            field["confidence"] = (
+                g_conf
+                if source_model in ("gemini", "both")
+                else p_conf
+            )
+
+            if status == "review_required":
+                merged["escalate"] = True
+                merged["escalation_reasons"].append(
+                    f"{name}: model disagreement or PaddleOCR fallback"
+                )
+
+            elif status == "not_found" and FIELDS[name]["required"]:
+                merged["escalate"] = True
+                merged["escalation_reasons"].append(
+                    f"{name}: required field not found"
+                )
+
+        all_results.append(merged)
+
 
     # Each page saved crops for every keyword it found, but a PDF's merged result
     # uses only one page's crop per field. Drop the rest so field_crops/ holds just

@@ -1,0 +1,1155 @@
+{
+ "image": "COASTAL_IRON_WKS_REPORTS_1981_page_13_p001.png",
+ "boxes": [
+  {
+   "text": "FORM U-1A MANUFACTURERS' DATA REPORT FOR PRESSURE VESSELS",
+   "score": 0.9951,
+   "box": [
+    551,
+    126,
+    1963,
+    173
+   ]
+  },
+  {
+   "text": "(Alternate Form for Single Chamber, Compietely Shop-Fabricated Vessels Only)",
+   "score": 0.991,
+   "box": [
+    522,
+    184,
+    1990,
+    228
+   ]
+  },
+  {
+   "text": "As Required by the Provisions of the ASME Code Rules, Section Vlll, Division 1",
+   "score": 0.9907,
+   "box": [
+    525,
+    228,
+    1987,
+    272
+   ]
+  },
+  {
+   "text": "COASTAL IRON WORKS INC. 1133 E. Port Corpus Christi, Texas",
+   "score": 0.9495,
+   "box": [
+    656,
+    372,
+    2220,
+    426
+   ]
+  },
+  {
+   "text": "1. Manufactured by",
+   "score": 0.9995,
+   "box": [
+    239,
+    385,
+    575,
+    427
+   ]
+  },
+  {
+   "text": "(Name and address of manufacturer)",
+   "score": 0.9981,
+   "box": [
+    1166,
+    419,
+    1702,
+    453
+   ]
+  },
+  {
+   "text": "Union Carbide Corporation, P.O. Box 836l. South Charleston, W.Va.",
+   "score": 0.9817,
+   "box": [
+    654,
+    446,
+    2312,
+    499
+   ]
+  },
+  {
+   "text": "2. Manufactured for",
+   "score": 0.9944,
+   "box": [
+    236,
+    457,
+    574,
+    501
+   ]
+  },
+  {
+   "text": "(Name and address of purchaser)",
+   "score": 0.9861,
+   "box": [
+    1181,
+    494,
+    1668,
+    527
+   ]
+  },
+  {
+   "text": "3. Location of Installation Union Carbide Corp.",
+   "score": 0.9992,
+   "box": [
+    231,
+    520,
+    1180,
+    580
+   ]
+  },
+  {
+   "text": "Texas City, Texas",
+   "score": 0.9798,
+   "box": [
+    1231,
+    527,
+    1671,
+    569
+   ]
+  },
+  {
+   "text": "(Name and address)",
+   "score": 0.9984,
+   "box": [
+    1329,
+    571,
+    1625,
+    601
+   ]
+  },
+  {
+   "text": "Vert. Vessel",
+   "score": 0.9963,
+   "box": [
+    398,
+    596,
+    706,
+    639
+   ]
+  },
+  {
+   "text": "331491",
+   "score": 1.0,
+   "box": [
+    1162,
+    598,
+    1315,
+    636
+   ]
+  },
+  {
+   "text": "N/A",
+   "score": 0.9983,
+   "box": [
+    1660,
+    602,
+    1751,
+    648
+   ]
+  },
+  {
+   "text": "80-2174,",
+   "score": 0.9956,
+   "box": [
+    1937,
+    594,
+    2151,
+    637
+   ]
+  },
+  {
+   "text": "4. Type",
+   "score": 0.9971,
+   "box": [
+    238,
+    606,
+    379,
+    649
+   ]
+  },
+  {
+   "text": "Vessel No.",
+   "score": 0.9673,
+   "box": [
+    893,
+    609,
+    1070,
+    646
+   ]
+  },
+  {
+   "text": "21",
+   "score": 0.9999,
+   "box": [
+    2156,
+    602,
+    2213,
+    632
+   ]
+  },
+  {
+   "text": "(Horiz, or vert. tank)",
+   "score": 0.9951,
+   "box": [
+    490,
+    642,
+    777,
+    676
+   ]
+  },
+  {
+   "text": "(Mfgrs Serial No.)",
+   "score": 0.9561,
+   "box": [
+    1199,
+    643,
+    1464,
+    673
+   ]
+  },
+  {
+   "text": "(CRN)",
+   "score": 0.9912,
+   "box": [
+    1716,
+    641,
+    1807,
+    678
+   ]
+  },
+  {
+   "text": "(Drawing No.)",
+   "score": 0.9774,
+   "box": [
+    2005,
+    642,
+    2213,
+    679
+   ]
+  },
+  {
+   "text": "1981",
+   "score": 1.0,
+   "box": [
+    1095,
+    673,
+    1204,
+    716
+   ]
+  },
+  {
+   "text": "Year Built",
+   "score": 0.9989,
+   "box": [
+    820,
+    683,
+    990,
+    721
+   ]
+  },
+  {
+   "text": "(Nat'I Brd No.)",
+   "score": 0.964,
+   "box": [
+    453,
+    712,
+    659,
+    746
+   ]
+  },
+  {
+   "text": "5. The chemical and physical properties of ali parts meet the requirements of material specifications of the ASME BOILER",
+   "score": 0.9814,
+   "box": [
+    234,
+    756,
+    2282,
+    803
+   ]
+  },
+  {
+   "text": "AND PRESSURE VESSEL CODE. The design, construction, and workmanship conform to ASME Rules. Section Vlll, Division",
+   "score": 0.9802,
+   "box": [
+    303,
+    804,
+    2285,
+    854
+   ]
+  },
+  {
+   "text": "1980",
+   "score": 1.0,
+   "box": [
+    453,
+    847,
+    568,
+    887
+   ]
+  },
+  {
+   "text": "and Addenda to",
+   "score": 0.9998,
+   "box": [
+    641,
+    855,
+    916,
+    894
+   ]
+  },
+  {
+   "text": "Winter'80",
+   "score": 0.9975,
+   "box": [
+    932,
+    847,
+    1166,
+    884
+   ]
+  },
+  {
+   "text": "N/A",
+   "score": 0.9999,
+   "box": [
+    1636,
+    846,
+    1724,
+    887
+   ]
+  },
+  {
+   "text": "1",
+   "score": 1.0,
+   "box": [
+    300,
+    858,
+    339,
+    894
+   ]
+  },
+  {
+   "text": "and Code Case no.",
+   "score": 0.9845,
+   "box": [
+    1230,
+    860,
+    1546,
+    899
+   ]
+  },
+  {
+   "text": "(Year)",
+   "score": 0.9991,
+   "box": [
+    438,
+    885,
+    532,
+    922
+   ]
+  },
+  {
+   "text": "(Date)",
+   "score": 0.9998,
+   "box": [
+    1024,
+    885,
+    1117,
+    923
+   ]
+  },
+  {
+   "text": "Special Service per UG-120(d)",
+   "score": 0.9934,
+   "box": [
+    305,
+    933,
+    782,
+    970
+   ]
+  },
+  {
+   "text": "N/A",
+   "score": 0.9979,
+   "box": [
+    1327,
+    924,
+    1417,
+    970
+   ]
+  },
+  {
+   "text": "Manufacturers' Partial Data Reports properly identified and signed by Commissioned Inspectors have been furnished for",
+   "score": 0.9872,
+   "box": [
+    303,
+    1003,
+    2285,
+    1053
+   ]
+  },
+  {
+   "text": "the following items of the report:",
+   "score": 0.996,
+   "box": [
+    304,
+    1055,
+    831,
+    1093
+   ]
+  },
+  {
+   "text": "N/A",
+   "score": 0.9995,
+   "box": [
+    1327,
+    1090,
+    1419,
+    1139
+   ]
+  },
+  {
+   "text": "(Name of part, item number, mfgr's name and identifying stamp)",
+   "score": 0.9936,
+   "box": [
+    822,
+    1134,
+    1756,
+    1177
+   ]
+  },
+  {
+   "text": "SA-516-70",
+   "score": 0.9998,
+   "box": [
+    559,
+    1329,
+    788,
+    1370
+   ]
+  },
+  {
+   "text": "3/8",
+   "score": 0.9999,
+   "box": [
+    1357,
+    1326,
+    1446,
+    1377
+   ]
+  },
+  {
+   "text": "1/16",
+   "score": 0.9999,
+   "box": [
+    2041,
+    1330,
+    2154,
+    1378
+   ]
+  },
+  {
+   "text": "6. Shell: Material",
+   "score": 0.9947,
+   "box": [
+    236,
+    1346,
+    524,
+    1386
+   ]
+  },
+  {
+   "text": "Nominal Thickness",
+   "score": 0.9995,
+   "box": [
+    986,
+    1352,
+    1294,
+    1389
+   ]
+  },
+  {
+   "text": "in. Corrosion Allowance",
+   "score": 0.9825,
+   "box": [
+    1556,
+    1352,
+    1984,
+    1393
+   ]
+  },
+  {
+   "text": "in.",
+   "score": 0.9138,
+   "box": [
+    2250,
+    1358,
+    2292,
+    1391
+   ]
+  },
+  {
+   "text": "(Spec. No., Grade)",
+   "score": 0.9874,
+   "box": [
+    617,
+    1378,
+    882,
+    1412
+   ]
+  },
+  {
+   "text": "12",
+   "score": 1.0,
+   "box": [
+    422,
+    1400,
+    487,
+    1444
+   ]
+  },
+  {
+   "text": "32",
+   "score": 1.0,
+   "box": [
+    1231,
+    1404,
+    1293,
+    1449
+   ]
+  },
+  {
+   "text": "8",
+   "score": 1.0,
+   "box": [
+    1587,
+    1406,
+    1626,
+    1449
+   ]
+  },
+  {
+   "text": "Diam.",
+   "score": 0.9996,
+   "box": [
+    283,
+    1419,
+    383,
+    1459
+   ]
+  },
+  {
+   "text": "ft",
+   "score": 0.936,
+   "box": [
+    649,
+    1424,
+    682,
+    1459
+   ]
+  },
+  {
+   "text": "in. Length",
+   "score": 0.9886,
+   "box": [
+    981,
+    1421,
+    1188,
+    1465
+   ]
+  },
+  {
+   "text": "ft",
+   "score": 0.9489,
+   "box": [
+    1454,
+    1424,
+    1492,
+    1464
+   ]
+  },
+  {
+   "text": "in.",
+   "score": 0.9999,
+   "box": [
+    1792,
+    1429,
+    1843,
+    1466
+   ]
+  },
+  {
+   "text": "Single Butt",
+   "score": 0.9997,
+   "box": [
+    682,
+    1456,
+    964,
+    1494
+   ]
+  },
+  {
+   "text": "Spot",
+   "score": 0.9999,
+   "box": [
+    1515,
+    1457,
+    1624,
+    1500
+   ]
+  },
+  {
+   "text": "85",
+   "score": 1.0,
+   "box": [
+    2066,
+    1456,
+    2128,
+    1502
+   ]
+  },
+  {
+   "text": "7. Seams: Longitudinal",
+   "score": 0.997,
+   "box": [
+    236,
+    1470,
+    624,
+    1511
+   ]
+  },
+  {
+   "text": "R.T.",
+   "score": 0.9998,
+   "box": [
+    1317,
+    1475,
+    1389,
+    1512
+   ]
+  },
+  {
+   "text": "Efficiency",
+   "score": 0.9999,
+   "box": [
+    1816,
+    1476,
+    1978,
+    1516
+   ]
+  },
+  {
+   "text": "%",
+   "score": 0.9894,
+   "box": [
+    2241,
+    1478,
+    2281,
+    1515
+   ]
+  },
+  {
+   "text": "(Welded, Dbl., Sngl, Lap, Butt)",
+   "score": 0.9598,
+   "box": [
+    753,
+    1502,
+    1184,
+    1538
+   ]
+  },
+  {
+   "text": "(Spot or Full)",
+   "score": 0.9739,
+   "box": [
+    1504,
+    1505,
+    1698,
+    1539
+   ]
+  },
+  {
+   "text": "N/A",
+   "score": 0.9991,
+   "box": [
+    522,
+    1531,
+    611,
+    1576
+   ]
+  },
+  {
+   "text": "H.T. Temp",
+   "score": 0.9996,
+   "box": [
+    282,
+    1541,
+    466,
+    1586
+   ]
+  },
+  {
+   "text": "N/A",
+   "score": 0.9997,
+   "box": [
+    955,
+    1538,
+    1040,
+    1575
+   ]
+  },
+  {
+   "text": "Single Butt",
+   "score": 0.9997,
+   "box": [
+    1365,
+    1538,
+    1647,
+    1579
+   ]
+  },
+  {
+   "text": "Time",
+   "score": 0.9999,
+   "box": [
+    779,
+    1548,
+    883,
+    1584
+   ]
+  },
+  {
+   "text": "Girth",
+   "score": 0.9983,
+   "box": [
+    1152,
+    1549,
+    1244,
+    1586
+   ]
+  },
+  {
+   "text": "(Welded, Dbl, Sngl, Lap, Butt)",
+   "score": 0.9778,
+   "box": [
+    1552,
+    1579,
+    1982,
+    1615
+   ]
+  },
+  {
+   "text": "Spot",
+   "score": 0.9999,
+   "box": [
+    605,
+    1599,
+    714,
+    1643
+   ]
+  },
+  {
+   "text": "4",
+   "score": 0.9999,
+   "box": [
+    1426,
+    1604,
+    1460,
+    1644
+   ]
+  },
+  {
+   "text": "R.T.",
+   "score": 0.9996,
+   "box": [
+    283,
+    1618,
+    357,
+    1656
+   ]
+  },
+  {
+   "text": "No. of Courses",
+   "score": 0.9959,
+   "box": [
+    1126,
+    1623,
+    1378,
+    1662
+   ]
+  },
+  {
+   "text": "(Spot, Partial, or Full)",
+   "score": 0.9771,
+   "box": [
+    584,
+    1648,
+    890,
+    1685
+   ]
+  },
+  {
+   "text": "CERTIFICATE OF COMPLIANCE",
+   "score": 0.9992,
+   "box": [
+    957,
+    1875,
+    1547,
+    1917
+   ]
+  },
+  {
+   "text": "We certify that the statements made in this report are correct and that all details of design, material,-cgestruetion, and",
+   "score": 0.9741,
+   "box": [
+    234,
+    1953,
+    2283,
+    2008
+   ]
+  },
+  {
+   "text": "workmanship of this vessel conform to the ASME Code for Pressure Vessels. Section Vlll, Division 1.",
+   "score": 0.994,
+   "box": [
+    236,
+    2004,
+    1875,
+    2052
+   ]
+  },
+  {
+   "text": "2-25-81",
+   "score": 0.9989,
+   "box": [
+    348,
+    2038,
+    531,
+    2077
+   ]
+  },
+  {
+   "text": "Date",
+   "score": 1.0,
+   "box": [
+    235,
+    2053,
+    318,
+    2091
+   ]
+  },
+  {
+   "text": "Signed Coastal Iron Works, Inc.",
+   "score": 0.9847,
+   "box": [
+    637,
+    2050,
+    1419,
+    2098
+   ]
+  },
+  {
+   "text": "by E.E.True,III",
+   "score": 0.9433,
+   "box": [
+    1476,
+    2052,
+    1894,
+    2101
+   ]
+  },
+  {
+   "text": "(Manufacturer)",
+   "score": 0.9995,
+   "box": [
+    1023,
+    2089,
+    1238,
+    2122
+   ]
+  },
+  {
+   "text": "(Representative)",
+   "score": 0.9998,
+   "box": [
+    1790,
+    2092,
+    2038,
+    2131
+   ]
+  },
+  {
+   "text": "\"U\"-Certificate of Authorization No.",
+   "score": 0.9867,
+   "box": [
+    237,
+    2125,
+    804,
+    2172
+   ]
+  },
+  {
+   "text": "3450",
+   "score": 1.0,
+   "box": [
+    963,
+    2123,
+    1073,
+    2166
+   ]
+  },
+  {
+   "text": "March 30",
+   "score": 0.9817,
+   "box": [
+    1670,
+    2128,
+    1888,
+    2169
+   ]
+  },
+  {
+   "text": "expires",
+   "score": 0.9999,
+   "box": [
+    1465,
+    2140,
+    1595,
+    2175
+   ]
+  },
+  {
+   "text": "1981",
+   "score": 1.0,
+   "box": [
+    2120,
+    2130,
+    2214,
+    2178
+   ]
+  },
+  {
+   "text": "CERTIFICATE OF SHOP INSPECTION",
+   "score": 0.9974,
+   "box": [
+    912,
+    2246,
+    1603,
+    2286
+   ]
+  },
+  {
+   "text": "Coastal Iron Works. Inc.",
+   "score": 0.9857,
+   "box": [
+    553,
+    2307,
+    1161,
+    2355
+   ]
+  },
+  {
+   "text": "Vessel made by",
+   "score": 0.9871,
+   "box": [
+    240,
+    2318,
+    514,
+    2359
+   ]
+  },
+  {
+   "text": "at ll33 E. Port, Corpus Christi, Tx.",
+   "score": 0.9696,
+   "box": [
+    1389,
+    2310,
+    2281,
+    2367
+   ]
+  },
+  {
+   "text": "I, the undersigned, holding a valid commission issued by the Natioal Board of Boiler and Pressure Vessel Inspectors and/or the",
+   "score": 0.994,
+   "box": [
+    236,
+    2368,
+    2284,
+    2418
+   ]
+  },
+  {
+   "text": "State or Province of",
+   "score": 0.9631,
+   "box": [
+    240,
+    2416,
+    592,
+    2456
+   ]
+  },
+  {
+   "text": "Texas",
+   "score": 0.9989,
+   "box": [
+    769,
+    2412,
+    904,
+    2453
+   ]
+  },
+  {
+   "text": "pressure vessel described in this Manufacturers' Data Report on",
+   "score": 0.9938,
+   "box": [
+    239,
+    2467,
+    1375,
+    2510
+   ]
+  },
+  {
+   "text": "19",
+   "score": 1.0,
+   "box": [
+    1834,
+    2479,
+    1881,
+    2511
+   ]
+  },
+  {
+   "text": "to the best of my knowledge and belief, the Manufacturer has constructed this pressure vessel in accordance with ASME Code.",
+   "score": 0.9904,
+   "box": [
+    240,
+    2516,
+    2283,
+    2565
+   ]
+  },
+  {
+   "text": "Section Vill, Division 1.",
+   "score": 0.9506,
+   "box": [
+    242,
+    2564,
+    612,
+    2602
+   ]
+  },
+  {
+   "text": "By signing this certificate neither the Inspector nor his employer makes any warranty, expressed or implied, concerning the",
+   "score": 0.9944,
+   "box": [
+    238,
+    2635,
+    2284,
+    2688
+   ]
+  },
+  {
+   "text": "pressure vessel described in the Manufacturers' Data Report. Furthermore, neither the Inspector nor his employer shall be",
+   "score": 0.9883,
+   "box": [
+    239,
+    2687,
+    2283,
+    2736
+   ]
+  },
+  {
+   "text": "liable in any manner for any personal injury or property damage or a loss of any kind arising from or connected with this",
+   "score": 0.9854,
+   "box": [
+    238,
+    2733,
+    2285,
+    2790
+   ]
+  },
+  {
+   "text": "inspection",
+   "score": 0.9992,
+   "box": [
+    238,
+    2782,
+    436,
+    2826
+   ]
+  },
+  {
+   "text": "Date",
+   "score": 0.9998,
+   "box": [
+    240,
+    2828,
+    389,
+    2870
+   ]
+  },
+  {
+   "text": "Sign\u00e9d",
+   "score": 0.9394,
+   "box": [
+    241,
+    2878,
+    385,
+    2922
+   ]
+  },
+  {
+   "text": "_ Commissions",
+   "score": 0.954,
+   "box": [
+    1169,
+    2881,
+    1425,
+    2929
+   ]
+  },
+  {
+   "text": "(Inspector)",
+   "score": 0.9655,
+   "box": [
+    696,
+    2916,
+    853,
+    2950
+   ]
+  },
+  {
+   "text": "(Nat'l Board. State, Province and No.)",
+   "score": 0.9584,
+   "box": [
+    1585,
+    2921,
+    2126,
+    2953
+   ]
+  },
+  {
+   "text": "(7175)",
+   "score": 0.9344,
+   "box": [
+    209,
+    3002,
+    314,
+    3045
+   ]
+  },
+  {
+   "text": "This form (E00109) may be obtained from the Order Dept., ASME, 345 E. 47th St., New York, N.Y. 10017",
+   "score": 0.9864,
+   "box": [
+    689,
+    3008,
+    2312,
+    3056
+   ]
+  }
+ ]
+}
