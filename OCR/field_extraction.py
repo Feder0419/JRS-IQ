@@ -11,11 +11,15 @@ values are flagged for review.
 Usage: python field_extraction.py [input] [--denoise] [--invert]
   input defaults to pdfs_to_process/. It may be a folder of PNGs/PDFs, a
   single PDF, or a single PNG.
-  PDFs are rendered to PNGs (output/pdf_pages/) first; --denoise/--invert apply
-  to those PDF-derived pages only. Existing PNGs are used as-is.
-Outputs: output/field_index.csv, output/field_index.json, output/field_crops/*.png
+  Gemini receives each original PDF/PNG through its Batch API. PaddleOCR runs
+  only for missing/low-confidence fields (threshold configurable). PDF pages
+  are rendered locally only when PaddleOCR is needed.
+Outputs: output/field_index.csv and field_index.json, plus gemini_batches/.
+Gemini requests are queued asynchronously; the script waits and resumes with
+its saved batch/job state if restarted using the same --output-dir.
 """
 from __future__ import annotations
+import time
 import argparse
 import csv
 import json
@@ -87,49 +91,433 @@ def run_ocr(ocr: PaddleOCR, image_path: Path) -> list[OcrBox]:
             boxes.append(OcrBox(text=text, score=float(score), box=[int(v) for v in box]))
     return boxes
 
-def run_gemini(file_path: Path) -> dict:
-    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+def run_gemini_batch(
+    sources: list[Path],
+    batch_size: int = 1000,
+    max_active: int = 2,
+    poll_seconds: int = 30,
+    max_attempts: int = 2,
+) -> dict:
+    """Submit, monitor, collect, retry, and cache Gemini batch requests.
 
-    mime = (
-        "application/pdf"
-        if file_path.suffix.lower() == ".pdf"
-        else "image/png"
-    )
+    Returns {document_filename: {field: {value, confidence}}}; a document whose
+    Gemini requests fail gets an empty dict so existing PaddleOCR can still run.
+    All persistent state lives under OUTPUT_DIR/gemini_batches/.
+    """
+    import hashlib
+    import math
+
+    if not sources:
+        return {}
+    if min(batch_size, max_active, poll_seconds, max_attempts) < 1:
+        raise ValueError("batch_size, max_active, poll_seconds and max_attempts must be >= 1")
+    if not os.environ.get("GEMINI_API_KEY"):
+        raise RuntimeError("GEMINI_API_KEY is missing. Set it in PowerShell before running.")
+
+    model = os.environ.get("GEMINI_MODEL", "gemini-3.6-flash")
+    work = OUTPUT_DIR / "gemini_batches"
+    work.mkdir(parents=True, exist_ok=True)
+    manifest_path = work / "jobs.json"
+    results_path = work / "results.json"
+    errors_path = work / "failed_documents.json"
+
+    def atomic_json(path: Path, obj) -> None:
+        temp = path.with_name(path.name + ".tmp")
+        temp.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
+        os.replace(temp, path)
+
+    def sha256_file(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for piece in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(piece)
+        return digest.hexdigest()
 
     prompt = f"""
-    Read this scanned manufacturing report.
+Read this scanned manufacturing report and extract these fields:
+{list(FIELDS.keys())}
 
-    Extract these fields:
-    {list(FIELDS.keys())}
+Return a JSON object with exactly those field names. Each field must be an
+object with 'value' (text or null) and 'confidence' (number 0 to 1 or null).
+Preserve text exactly as written, including leading zeros and punctuation.
+Never guess unreadable information. Use null for unreadable or absent values.
+Return only valid JSON.
+""".strip()
+    names = [p.name for p in sources]
+    if len(set(names)) != len(names):
+        raise ValueError("Input document filenames must be unique")
+    identity = {
+        "model": model,
+        "batch_size": batch_size,
+        "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+        "field_config": json.dumps(FIELDS, sort_keys=True, default=str),
+        "inputs": {p.name: {"size": p.stat().st_size, "sha256": sha256_file(p)} for p in sources},
+    }
+    run_id = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:12]
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest.get("identity") != identity:
+            raise RuntimeError(
+                "Inputs, model, prompt or batch size differ from the saved run. "
+                "Use a NEW --output-dir, or restore the original inputs/settings."
+            )
+    else:
+        manifest = {"identity": identity, "jobs": {}}
+        atomic_json(manifest_path, manifest)
 
-    Return a JSON object with exactly those field names.
-    Each field must contain:
-      "value": extracted text or null
-      "confidence": number between 0 and 1
+    results = json.loads(results_path.read_text(encoding="utf-8")) if results_path.exists() else {}
+    if not isinstance(results, dict):
+        raise RuntimeError("Gemini results cache is corrupt: expected a JSON object")
+    results = {key: value for key, value in results.items() if key in identity["inputs"]}
+    errors = {}
+    terminal = {
+        "JOB_STATE_SUCCEEDED", "JOB_STATE_FAILED", "JOB_STATE_CANCELLED",
+        "JOB_STATE_EXPIRED", "JOB_STATE_PAUSED",
+    }
 
-    Confidence is your estimated confidence in the reading.
+    def state_name(job) -> str:
+        state = getattr(job, "state", None)
+        return getattr(state, "name", str(state or "UNKNOWN"))
 
-    Preserve the text as written in the document.
-    Do not guess unreadable information.
-    Use null when a field cannot be read.
-    Return only JSON.
-    """
+    class FatalGeminiError(RuntimeError):
+        """Bad credentials, model ID, or unsupported input; retry cannot fix it."""
 
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=[
-            types.Part.from_bytes(
-                data=file_path.read_bytes(),
-                mime_type=mime
-            ),
-            prompt
-        ],
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json"
-        )
-    )
+    def api_call(label, call, retries=4):
+        for i in range(retries):
+            try:
+                return call()
+            except Exception as exc:
+                code = getattr(exc, "code", None)
+                # A bad key/model/request won't be repaired by waiting.
+                if code in (400, 401, 403, 404):
+                    error = FatalGeminiError(f"{label}: {exc}")
+                    error.code = code
+                    raise error from exc
+                if i == retries - 1:
+                    raise RuntimeError(f"{label} failed after {retries} attempts: {exc}") from exc
+                wait = min(2 ** i * 3, 30)
+                print(f"  {label} failed ({exc}); retrying in {wait}s")
+                time.sleep(wait)
 
-    return json.loads(response.text)
+    def validate_response(payload):
+        if not isinstance(payload, dict):
+            raise ValueError("Gemini returned something other than a JSON object")
+        if not any(name in payload for name in FIELDS):
+            raise ValueError("Gemini returned no recognized fields")
+        cleaned = {}
+        for field_name in FIELDS:
+            record = payload.get(field_name)
+            if record is None:
+                cleaned[field_name] = {"value": None, "confidence": None}
+                continue
+            if not isinstance(record, dict):
+                raise ValueError(f"{field_name}: expected an object")
+            value, conf = record.get("value"), record.get("confidence")
+            if value is not None and not isinstance(value, str):
+                raise ValueError(f"{field_name}: value must be text or null")
+            if conf is not None and (
+                isinstance(conf, bool) or not isinstance(conf, (int, float))
+                or not math.isfinite(conf) or not 0 <= conf <= 1
+            ):
+                raise ValueError(f"{field_name}: confidence must be 0..1 or null")
+            cleaned[field_name] = {"value": value, "confidence": conf}
+        return cleaned
+
+    def download_nonempty(client, file_name: str) -> bytes:
+        data = client.files.download(file=file_name)
+        if not data:
+            raise RuntimeError("Batch response file is empty or not ready yet")
+        return data
+
+    def parse_jsonl(data: bytes, expected: set[str]) -> None:
+        if not data.strip():
+            raise ValueError("Downloaded Gemini batch result is empty")
+        parsed_count = 0
+        for line_no, line in enumerate(data.decode("utf-8-sig").splitlines(), 1):
+            row = None
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+                name = row.get("key")
+                if name not in expected:
+                    print(f"  Unexpected result key at line {line_no}: {name!r}")
+                    continue
+                if row.get("error") or not row.get("response"):
+                    errors[name] = f"Gemini returned an error: {row.get('error')}"
+                    continue
+                candidates = row["response"].get("candidates") or []
+                parts = candidates[0]["content"]["parts"]
+                response_text = "".join(part.get("text", "") for part in parts)
+                fields = validate_response(json.loads(response_text))
+                results[name] = fields
+                errors.pop(name, None)
+                parsed_count += 1
+            except (KeyError, TypeError, ValueError, IndexError, AttributeError) as exc:
+                name = row.get("key") if isinstance(row, dict) else None
+                if name in expected:
+                    errors[name] = f"Malformed response: {exc}"
+                else:
+                    print(f"  Invalid JSONL line {line_no}: {exc}")
+        atomic_json(results_path, results)
+        print(f"  Parsed {parsed_count} usable results; total {len(results)}/{len(sources)}")
+
+    def safe_cleanup(client, job_info) -> None:
+        # Don't delete documents before their batch is terminal.
+        if job_info.get("cleaned"):
+            return
+        pending = []
+        for file_name in job_info.get("uploads", []) + [job_info.get("request_file")]:
+            if not file_name:
+                continue
+            try:
+                client.files.delete(name=file_name)
+            except Exception as exc:
+                print(f"  Warning: could not clean up uploaded file {file_name}: {exc}")
+                pending.append(file_name)
+        job_info["uploads"] = pending
+        job_info["request_file"] = None
+        job_info["cleaned"] = not pending
+        atomic_json(manifest_path, manifest)
+
+    def recover_pending_job(client, display_name: str):
+        # Narrow crash window: server accepted the create request but the client
+        # stopped before it could save the new job name locally.
+        try:
+            for found in client.batches.list():
+                if getattr(found, "display_name", None) == display_name:
+                    return found.name
+        except Exception as exc:
+            print(f"  Could not search existing jobs: {exc}")
+        return None
+
+    chunks = [sources[i:i + batch_size] for i in range(0, len(sources), batch_size)]
+    print(f"Gemini model: {model} | documents: {len(sources)} | chunks: {len(chunks)}")
+    print(f"Resume state: {work}")
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    try:
+        for attempt in range(max_attempts):
+            if len(results) == len(sources):
+                break
+            print(f"\nGemini pass {attempt + 1}/{max_attempts}")
+            for start in range(0, len(chunks), max_active):
+                active = {}
+                for idx in range(start, min(start + max_active, len(chunks))):
+                    chunk = chunks[idx]
+                    todo = [p for p in chunk if p.name not in results]
+                    if not todo:
+                        continue
+                    job_key = f"try{attempt + 1}_batch{idx:05d}"
+                    job_info = manifest["jobs"].get(job_key)
+                    if job_info is None:
+                        job_info = {
+                            "name": None,
+                            "display_name": f"jrs-iq-{run_id}-{job_key}",
+                            "files": [], "uploads": [], "request_file": None,
+                            "cleaned": False,
+                        }
+                        manifest["jobs"][job_key] = job_info
+                        atomic_json(manifest_path, manifest)
+
+                    if not job_info.get("name"):
+                        # Reuse uploads and the JSONL if we crashed during create.
+                        if not job_info.get("request_file"):
+                            path = work / f"{job_key}.jsonl"
+                            uploaded_names = []
+                            accepted = []
+                            with path.open("w", encoding="utf-8") as handle:
+                                for source in todo:
+                                    mime = "application/pdf" if source.suffix.lower() == ".pdf" else "image/png"
+                                    if mime == "application/pdf" and source.stat().st_size > 50_000_000:
+                                        errors[source.name] = "PDF exceeds Gemini's 50 MB PDF limit"
+                                        continue
+                                    try:
+                                        file = api_call(
+                                            f"Upload {source.name}",
+                                            lambda p=source, m=mime: client.files.upload(
+                                                file=str(p), config=types.UploadFileConfig(mime_type=m)
+                                            ),
+                                        )
+                                        deadline = time.monotonic() + 300
+                                        while state_name(file) == "PROCESSING":
+                                            if time.monotonic() > deadline:
+                                                raise RuntimeError("File processing exceeded five minutes")
+                                            time.sleep(2)
+                                            file = api_call(f"Check upload {source.name}",
+                                                            lambda f=file: client.files.get(name=f.name))
+                                        if state_name(file) == "FAILED" or not file.uri:
+                                            raise RuntimeError("File processing failed or file URI missing")
+                                        uploaded_names.append(file.name)
+                                        accepted.append(source.name)
+                                        request = {
+                                            "key": source.name,
+                                            "request": {
+                                                "contents": [{"role": "user", "parts": [
+                                                    {"fileData": {"mimeType": mime, "fileUri": file.uri}},
+                                                    {"text": prompt},
+                                                ]}],
+                                                "generationConfig": {"responseMimeType": "application/json"},
+                                            },
+                                        }
+                                        handle.write(json.dumps(request, ensure_ascii=False) + "\n")
+                                    except FatalGeminiError:
+                                        raise
+                                    except Exception as exc:
+                                        errors[source.name] = f"Upload error: {exc}"
+                                        print(f"  {source.name}: {errors[source.name]}")
+                            job_info["uploads"] = uploaded_names
+                            job_info["files"] = accepted
+                            atomic_json(manifest_path, manifest)
+                            if not accepted:
+                                print(f"{job_key}: no uploaded documents; retry on next pass")
+                                safe_cleanup(client, job_info)
+                                continue
+                            try:
+                                remote_jsonl = api_call(
+                                    f"Upload JSONL {job_key}",
+                                    lambda: client.files.upload(
+                                        file=str(path), config=types.UploadFileConfig(mime_type="jsonl")
+                                    ),
+                                )
+                                job_info["request_file"] = remote_jsonl.name
+                                atomic_json(manifest_path, manifest)
+                            except FatalGeminiError:
+                                raise
+                            except Exception as exc:
+                                print(f"{job_key}: could not upload JSONL: {exc}")
+                                for name in accepted:
+                                    errors[name] = f"JSONL upload failed: {exc}"
+                                safe_cleanup(client, job_info)
+                                continue
+
+                        # Only list existing jobs when recovering a previously
+                        # prepared submission or after an ambiguous API error.
+                        job_name = None
+                        if job_info.get("submitted_before"):
+                            job_name = recover_pending_job(client, job_info["display_name"])
+                        if not job_name:
+                            try:
+                                # A create() retry might submit duplicate billable
+                                # batches if the response was lost. Check the job
+                                # list before issuing another create request.
+                                for submit_attempt in range(3):
+                                    job_info["submitted_before"] = True
+                                    atomic_json(manifest_path, manifest)
+                                    try:
+                                        job = client.batches.create(
+                                            model=model,
+                                            src=job_info["request_file"],
+                                            config={"display_name": job_info["display_name"]},
+                                        )
+                                        job_name = job.name
+                                        break
+                                    except Exception as exc:
+                                        recovered = recover_pending_job(client, job_info["display_name"])
+                                        if recovered:
+                                            job_name = recovered
+                                            break
+                                        if getattr(exc, "code", None) in (400, 401, 403, 404):
+                                            raise FatalGeminiError(f"Batch submission rejected: {exc}") from exc
+                                        if submit_attempt == 2:
+                                            raise
+                                        time.sleep(3 * (submit_attempt + 1))
+                            except FatalGeminiError:
+                                raise
+                            except Exception as exc:
+                                print(f"{job_key}: submission failed: {exc}")
+                                for name in job_info.get("files", []):
+                                    errors[name] = f"Batch submission failed: {exc}"
+                                continue
+                        job_info["name"] = job_name
+                        atomic_json(manifest_path, manifest)
+                        print(f"Submitted {job_key}: {len(job_info['files'])} documents, {job_name}")
+                    active[job_key] = job_info["name"]
+
+                # All batch monitoring stays in the same execution.
+                started = time.monotonic()
+                while active:
+                    for job_key, job_name in list(active.items()):
+                        info = manifest["jobs"][job_key]
+                        try:
+                            job = api_call(f"Poll {job_key}", lambda j=job_name: client.batches.get(name=j))
+                        except FatalGeminiError as exc:
+                            if getattr(exc, "code", None) != 404:
+                                raise
+                            # An expired/deleted job can no longer be polled.
+                            # Retry its documents in the next batch pass.
+                            print(f"  {job_key}: job not found; retrying missing documents")
+                            del active[job_key]
+                            info["state"] = "JOB_STATE_EXPIRED"
+                            atomic_json(manifest_path, manifest)
+                            for name in info.get("files", []):
+                                if name not in results:
+                                    errors[name] = "Remote Gemini batch job expired or disappeared"
+                            safe_cleanup(client, info)
+                            continue
+                        except Exception as exc:
+                            # Leave job names saved for recovery after network failure.
+                            raise RuntimeError(
+                                f"Cannot retrieve {job_name}: {exc}. Rerun the SAME command to resume."
+                            ) from exc
+                        state = state_name(job)
+                        if state not in terminal:
+                            print(f"  {job_key}: {state}")
+                            continue
+                        del active[job_key]
+                        info["state"] = state
+                        atomic_json(manifest_path, manifest)
+                        print(f"  {job_key}: {state}")
+                        raw_path = work / f"{job_key}_responses.jsonl"
+                        if raw_path.is_file():
+                            raw = raw_path.read_bytes()
+                        else:
+                            output_file = getattr(getattr(job, "dest", None), "file_name", None)
+                            if output_file:
+                                try:
+                                    raw = api_call(
+                                        f"Download {job_key}",
+                                        lambda f=output_file: download_nonempty(client, f),
+                                    )
+                                    raw_path.write_bytes(raw)
+                                except Exception as exc:
+                                    raw = b""
+                                    print(f"  {job_key}: download failed: {exc}")
+                            else:
+                                raw = b""
+                        if raw:
+                            try:
+                                parse_jsonl(raw, set(info.get("files", [])))
+                            except Exception as exc:
+                                print(f"  {job_key}: cannot parse downloaded JSONL: {exc}")
+                        if state != "JOB_STATE_SUCCEEDED":
+                            print(f"  {job_key}: job ended unsuccessfully; missing documents will be retried")
+                        for name in info.get("files", []):
+                            if name not in results and name not in errors:
+                                errors[name] = f"No usable Gemini response ({state})"
+                        safe_cleanup(client, info)
+                    if active:
+                        if time.monotonic() - started > 49 * 3600:
+                            raise RuntimeError(
+                                "Gemini jobs still running after 49 hours. "
+                                "Use the SAME output folder to resume later."
+                            )
+                        time.sleep(poll_seconds)
+
+            missing = [p.name for p in sources if p.name not in results]
+            print(f"Pass {attempt + 1}: {len(results)}/{len(sources)} documents have Gemini results")
+            if not missing:
+                break
+
+        # Any remaining failures go to the existing local PaddleOCR path rather
+        # than preventing the entire document index from being written.
+        missing = [p.name for p in sources if p.name not in results]
+        atomic_json(errors_path, {name: errors.get(name, "No valid Gemini result after retries") for name in missing})
+        if missing:
+            print(f"WARNING: Gemini failed for {len(missing)} documents; using PaddleOCR and flagging review")
+        return {p.name: results.get(p.name, {}) for p in sources}
+    finally:
+        client.close()
+
 
 def group_into_rows(boxes: list[OcrBox]) -> list[list[OcrBox]]:
     """Group boxes into text rows by vertical-center overlap, tolerant of skew."""
@@ -659,7 +1047,20 @@ def main():
     parser.add_argument("--invert", action="store_true", help="invert PDF-derived pages")
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR,
                         help="where to write results (use a scratch folder to avoid overwriting reviewed output)")
+    parser.add_argument("--batch-size", type=int, default=5,
+                        help="documents per Gemini batch job; start with 5, increase after testing")
+    parser.add_argument("--batch-concurrency", type=int, default=2,
+                        help="maximum active Gemini batch jobs")
+    parser.add_argument("--batch-poll-seconds", type=int, default=30,
+                        help="seconds between batch status checks")
+    parser.add_argument("--batch-attempts", type=int, default=2,
+                        help="number of Gemini attempts per document")
+    parser.add_argument("--gemini-confidence-threshold", type=float, default=0.0,
+                        help="also run PaddleOCR if Gemini confidence is below this threshold (default: missing fields only)")
     args = parser.parse_args()
+
+    if not 0 <= args.gemini_confidence_threshold <= 1:
+        parser.error("--gemini-confidence-threshold must be between 0 and 1")
 
     OUTPUT_DIR = args.output_dir
     OUTPUT_CSV, OUTPUT_JSON = OUTPUT_DIR / "field_index.csv", OUTPUT_DIR / "field_index.json"
@@ -685,6 +1086,18 @@ def main():
 
     FIELD_CROPS_DIR.mkdir(parents=True, exist_ok=True)
 
+    # Run Gemini Batch API for all documents.
+    gemini_by_doc = run_gemini_batch(
+        sources,
+        batch_size=args.batch_size,
+        max_active=args.batch_concurrency,
+        poll_seconds=args.batch_poll_seconds,
+        max_attempts=args.batch_attempts,
+    )
+    batch_failures = json.loads(
+        (OUTPUT_DIR / "gemini_batches" / "failed_documents.json").read_text(encoding="utf-8")
+    )
+
     # Do not initialize PaddleOCR unless Gemini misses a field.
     ocr = None
     all_results = []
@@ -695,22 +1108,69 @@ def main():
     def normalize(value):
         return re.sub(r"[^a-z0-9]", "", str(value or "").lower())
 
+    # Keep a local per-document checkpoint, too: a restart shouldn't need to
+    # redo expensive PaddleOCR for documents already merged successfully.
+    import hashlib
+    batch_folder = OUTPUT_DIR / "gemini_batches"
+    resume_identity = {
+        "job_manifest": json.loads((batch_folder / "jobs.json").read_text(encoding="utf-8"))["identity"],
+        "gemini_results_sha256": hashlib.sha256((batch_folder / "results.json").read_bytes()).hexdigest()
+                                 if (batch_folder / "results.json").exists() else None,
+        "gemini_failures_sha256": hashlib.sha256((batch_folder / "failed_documents.json").read_bytes()).hexdigest(),
+        "denoise": args.denoise, "invert": args.invert,
+        "gemini_confidence_threshold": args.gemini_confidence_threshold,
+    }
+    progress_path = OUTPUT_DIR / "field_index_progress.json"
+    if progress_path.exists():
+        progress = json.loads(progress_path.read_text(encoding="utf-8"))
+        if progress.get("identity") != resume_identity:
+            progress = {"identity": resume_identity, "documents": {}}
+    else:
+        progress = {"identity": resume_identity, "documents": {}}
+
+    def checkpoint_progress():
+        temp = progress_path.with_name(progress_path.name + ".tmp")
+        temp.write_text(json.dumps(progress, indent=2), encoding="utf-8")
+        os.replace(temp, progress_path)
+
+    def blank_document(doc_name):
+        return {
+            "document": doc_name, "pages": [], "ocr_boxes_files": [],
+            "fields": {name: {
+                "value": None, "confidence": None, "llm_checked": False,
+                "boxes": [], "rejected": [],
+                "crop_file": None, "crop_box": None, "crop_kind": None,
+            } for name in FIELDS},
+            "escalate": False, "escalation_reasons": [],
+        }
+
     for source in sources:
         doc_name = source.name
-        print(f"\nRunning Gemini on {doc_name}...")
+        if doc_name in progress["documents"]:
+            print(f"\nResuming {doc_name}: already processed locally")
+            all_results.append(progress["documents"][doc_name])
+            continue
+        print(f"\nProcessing {doc_name}...")
 
-        # STEP 1: Send original PDF/PNG directly to Gemini.
-        gemini_results = run_gemini(source)
+        # STEP 1: Read the completed Gemini batch result.
+        gemini_results = gemini_by_doc[source.name]
 
         # STEP 2: Check which fields Gemini missed.
         missing_fields = [
             name for name in FIELDS
-            if not has_value(
-                (gemini_results.get(name) or {}).get("value")
+            if (
+                not has_value((gemini_results.get(name) or {}).get("value"))
+                or (
+                    args.gemini_confidence_threshold > 0
+                    and ((gemini_results.get(name) or {}).get("confidence") is None
+                         or (gemini_results.get(name) or {}).get("confidence")
+                            < args.gemini_confidence_threshold)
+                )
             )
         ]
 
         paddle_ran = bool(missing_fields)
+        paddle_error = None
 
         if missing_fields:
             print(f"Gemini missing: {missing_fields}")
@@ -734,44 +1194,25 @@ def main():
                 )
 
             # Render only this document and run existing OCR.
-            rendered = collect_images(
-                source, args.denoise, args.invert
-            )
-            _, image_paths = rendered[0]
-
-            page_results = []
-            for image_path in image_paths:
-                print(f"Processing {image_path.name}...")
-                page_results.append(
-                    process_document(ocr, image_path)
-                )
-
-            merged = merge_pages(doc_name, page_results)
+            try:
+                rendered = collect_images(source, args.denoise, args.invert)
+                _, image_paths = rendered[0]
+                if not image_paths:
+                    raise ValueError("Document had no renderable pages")
+                page_results = []
+                for image_path in image_paths:
+                    print(f"Processing {image_path.name}...")
+                    page_results.append(process_document(ocr, image_path))
+                merged = merge_pages(doc_name, page_results)
+            except Exception as exc:
+                # Keep processing other documents, but explicitly flag this one.
+                paddle_error = f"PaddleOCR processing failed: {type(exc).__name__}: {exc}"
+                print(f"WARNING: {doc_name}: {paddle_error}")
+                merged = blank_document(doc_name)
 
         else:
             print("All fields found. Skipping PaddleOCR.")
-
-            # Build the same output structure without OCR.
-            merged = {
-                "document": doc_name,
-                "pages": [],
-                "ocr_boxes_files": [],
-                "fields": {
-                    name: {
-                        "value": None,
-                        "confidence": None,
-                        "llm_checked": False,
-                        "boxes": [],
-                        "rejected": [],
-                        "crop_file": None,
-                        "crop_box": None,
-                        "crop_kind": None,
-                    }
-                    for name in FIELDS
-                },
-                "escalate": False,
-                "escalation_reasons": [],
-            }
+            merged = blank_document(doc_name)
 
         # Reset PaddleOCR warnings.
         # Review flags will be rebuilt from final selected values.
@@ -779,6 +1220,14 @@ def main():
         merged["escalation_reasons"] = []
 
         # STEP 3: Merge Gemini results with optional PaddleOCR.
+        if doc_name in batch_failures:
+            merged["escalate"] = True
+            merged["escalation_reasons"].append(
+                f"Gemini batch failed: {batch_failures[doc_name]}; PaddleOCR fallback needs review"
+            )
+        if paddle_error:
+            merged["escalate"] = True
+            merged["escalation_reasons"].append(paddle_error)
         for name in FIELDS:
             field = merged["fields"][name]
 
@@ -824,11 +1273,13 @@ def main():
                 "value": p_value,
                 "confidence": p_conf,
                 "ran": paddle_ran,
+                **({"error": paddle_error} if paddle_error else {}),
             }
 
             field["gemini"] = {
                 "value": g_value,
                 "confidence": g_conf,
+                **({"error": batch_failures[doc_name]} if doc_name in batch_failures else {}),
             }
 
             field["selection"] = {
@@ -857,6 +1308,11 @@ def main():
                 )
 
         all_results.append(merged)
+        # Do not cache a failed local-OCR attempt; a restart can retry it
+        # after dependencies or the source file have been repaired.
+        if not paddle_error:
+            progress["documents"][doc_name] = merged
+            checkpoint_progress()
 
 
     # Each page saved crops for every keyword it found, but a PDF's merged result
