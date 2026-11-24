@@ -1,0 +1,6 @@
+document,escalate,escalation_reasons,form_number,report_date,year_built,boiler_no,serial_no,national_board_no,manufactured_by,manufactured_for,material_spec
+9.9.2583.0004.pdf,False,,Min. No. 16,JUN 23 1966,1966,97549,97549,8/629,"COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",STOCK,SA 285 C
+9.9.2583.0005.pdf,False,,Min No 16,JUN 23 1966,1966,97550,97550,87630,"COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",STOCK,"SA 285 C, SA 178"
+9.9.2583.0010.pdf,False,,Min No 16,JUN 28 1966,1966,97555,97555,87635,"COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",STOCK,SA 285 C
+9.9.2583.0011.pdf,True,form_number: model disagreement or PaddleOCR fallback; boiler_no: model disagreement or PaddleOCR fallback; manufactured_for: model disagreement or PaddleOCR fallback,P101,JUN 28 1966,1966,97556,97556,87636,"COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",STOCK,SA 285 C
+9.9.2583.0012.pdf,False,,Min No 16,JUN 28 1966,1966,97557,97557,87637,"COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",STOCK,SA 285 C

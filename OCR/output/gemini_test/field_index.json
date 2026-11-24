@@ -1,0 +1,1289 @@
+[
+  {
+    "document": "9.9.2583.0004.pdf",
+    "pages": [],
+    "ocr_boxes_files": [],
+    "fields": {
+      "form_number": {
+        "value": "Min. No. 16",
+        "confidence": 0.95,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "Min. No. 16",
+          "confidence": 0.95
+        },
+        "selection": {
+          "value": "Min. No. 16",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "report_date": {
+        "value": "JUN 23 1966",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "JUN 23 1966",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "JUN 23 1966",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "year_built": {
+        "value": "1966",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "1966",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "1966",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "boiler_no": {
+        "value": "97549",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "97549",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "97549",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "serial_no": {
+        "value": "97549",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "97549",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "97549",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "national_board_no": {
+        "value": "8/629",
+        "confidence": 0.9,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "8/629",
+          "confidence": 0.9
+        },
+        "selection": {
+          "value": "8/629",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "manufactured_by": {
+        "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "manufactured_for": {
+        "value": "STOCK",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "STOCK",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "STOCK",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "material_spec": {
+        "value": "SA 285 C",
+        "confidence": 0.95,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "SA 285 C",
+          "confidence": 0.95
+        },
+        "selection": {
+          "value": "SA 285 C",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      }
+    },
+    "escalate": false,
+    "escalation_reasons": []
+  },
+  {
+    "document": "9.9.2583.0005.pdf",
+    "pages": [],
+    "ocr_boxes_files": [],
+    "fields": {
+      "form_number": {
+        "value": "Min No 16",
+        "confidence": 0.9,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "Min No 16",
+          "confidence": 0.9
+        },
+        "selection": {
+          "value": "Min No 16",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "report_date": {
+        "value": "JUN 23 1966",
+        "confidence": 0.95,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "JUN 23 1966",
+          "confidence": 0.95
+        },
+        "selection": {
+          "value": "JUN 23 1966",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "year_built": {
+        "value": "1966",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "1966",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "1966",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "boiler_no": {
+        "value": "97550",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "97550",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "97550",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "serial_no": {
+        "value": "97550",
+        "confidence": 0.95,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "97550",
+          "confidence": 0.95
+        },
+        "selection": {
+          "value": "97550",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "national_board_no": {
+        "value": "87630",
+        "confidence": 0.85,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "87630",
+          "confidence": 0.85
+        },
+        "selection": {
+          "value": "87630",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "manufactured_by": {
+        "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "manufactured_for": {
+        "value": "STOCK",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "STOCK",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "STOCK",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "material_spec": {
+        "value": "SA 285 C, SA 178",
+        "confidence": 0.92,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "SA 285 C, SA 178",
+          "confidence": 0.92
+        },
+        "selection": {
+          "value": "SA 285 C, SA 178",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      }
+    },
+    "escalate": false,
+    "escalation_reasons": []
+  },
+  {
+    "document": "9.9.2583.0010.pdf",
+    "pages": [],
+    "ocr_boxes_files": [],
+    "fields": {
+      "form_number": {
+        "value": "Min No 16",
+        "confidence": 0.9,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "Min No 16",
+          "confidence": 0.9
+        },
+        "selection": {
+          "value": "Min No 16",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "report_date": {
+        "value": "JUN 28 1966",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "JUN 28 1966",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "JUN 28 1966",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "year_built": {
+        "value": "1966",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "1966",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "1966",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "boiler_no": {
+        "value": "97555",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "97555",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "97555",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "serial_no": {
+        "value": "97555",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "97555",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "97555",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "national_board_no": {
+        "value": "87635",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "87635",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "87635",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "manufactured_by": {
+        "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "manufactured_for": {
+        "value": "STOCK",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "STOCK",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "STOCK",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "material_spec": {
+        "value": "SA 285 C",
+        "confidence": 0.95,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "SA 285 C",
+          "confidence": 0.95
+        },
+        "selection": {
+          "value": "SA 285 C",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      }
+    },
+    "escalate": false,
+    "escalation_reasons": []
+  },
+  {
+    "document": "9.9.2583.0011.pdf",
+    "pages": [
+      "9.9.2583.0011_p001.png",
+      "9.9.2583.0011_p002.png"
+    ],
+    "ocr_boxes_files": [
+      "ocr_boxes/9.9.2583.0011_p001.json",
+      "ocr_boxes/9.9.2583.0011_p002.json"
+    ],
+    "fields": {
+      "form_number": {
+        "value": "P101",
+        "confidence": 0.5,
+        "source": "pattern_fallback",
+        "llm_checked": false,
+        "boxes": [
+          [
+            121,
+            3645,
+            685,
+            3720
+          ]
+        ],
+        "rejected": [],
+        "crop_file": "field_crops/9.9.2583.0011_p002__form_number.png",
+        "crop_box": [
+          91,
+          3625,
+          715,
+          3740
+        ],
+        "crop_kind": "pattern_fallback",
+        "page": "9.9.2583.0011_p002.png",
+        "paddleocr": {
+          "value": "P101",
+          "confidence": 0.5,
+          "ran": true
+        },
+        "gemini": {
+          "value": null,
+          "confidence": null
+        },
+        "selection": {
+          "value": "P101",
+          "source": "paddleocr",
+          "status": "review_required"
+        }
+      },
+      "report_date": {
+        "value": "JUN 28 1966",
+        "confidence": 0.95,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [
+          {
+            "text": "MAHUFACTURERS DATA REFORT",
+            "where": "same row",
+            "reason": "does not fit the field's pattern",
+            "row": 0,
+            "score": 0.938,
+            "boxes": [
+              [
+                1097,
+                177,
+                1998,
+                249
+              ]
+            ],
+            "box_texts": [
+              "MAHUFACTURERS DATA REFORT"
+            ],
+            "box_scores": [
+              0.938
+            ],
+            "page": "9.9.2583.0011_p001.png"
+          }
+        ],
+        "crop_file": "field_crops/9.9.2583.0011_p001__report_date.png",
+        "crop_box": [
+          616,
+          0,
+          2478,
+          377
+        ],
+        "crop_kind": "label_only",
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": true
+        },
+        "gemini": {
+          "value": "JUN 28 1966",
+          "confidence": 0.95
+        },
+        "selection": {
+          "value": "JUN 28 1966",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "year_built": {
+        "value": "1966",
+        "confidence": 0.99,
+        "source": "pattern_fallback",
+        "llm_checked": false,
+        "boxes": [
+          [
+            2154,
+            723,
+            2340,
+            831
+          ]
+        ],
+        "rejected": [],
+        "crop_file": "field_crops/9.9.2583.0011_p001__year_built.png",
+        "crop_box": [
+          2124,
+          703,
+          2370,
+          851
+        ],
+        "crop_kind": "pattern_fallback",
+        "page": "9.9.2583.0011_p001.png",
+        "paddleocr": {
+          "value": "1966",
+          "confidence": 1.0,
+          "ran": true
+        },
+        "gemini": {
+          "value": "1966",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "1966",
+          "source": "both",
+          "status": "agreed"
+        }
+      },
+      "boiler_no": {
+        "value": "97556",
+        "confidence": 0.98,
+        "source": "label",
+        "llm_checked": false,
+        "boxes": [
+          [
+            167,
+            1358,
+            424,
+            1407
+          ],
+          [
+            1359,
+            1355,
+            1603,
+            1406
+          ]
+        ],
+        "rejected": [
+          {
+            "text": "Lengik",
+            "where": "same row",
+            "reason": "contains no digit",
+            "row": 11,
+            "score": 0.909,
+            "boxes": [
+              [
+                1786,
+                1230,
+                1933,
+                1292
+              ]
+            ],
+            "box_texts": [
+              "Lengik"
+            ],
+            "box_scores": [
+              0.909
+            ]
+          }
+        ],
+        "crop_file": "field_crops/9.9.2583.0011_p002__boiler_no.png",
+        "crop_box": [
+          0,
+          935,
+          1961,
+          1427
+        ],
+        "crop_kind": "label",
+        "page": "9.9.2583.0011_p002.png",
+        "paddleocr": {
+          "value": "12",
+          "confidence": 0.869,
+          "ran": true
+        },
+        "gemini": {
+          "value": "97556",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "97556",
+          "source": "gemini",
+          "status": "review_required"
+        }
+      },
+      "serial_no": {
+        "value": "97556",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": true
+        },
+        "gemini": {
+          "value": "97556",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "97556",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "national_board_no": {
+        "value": "87636",
+        "confidence": 0.98,
+        "source": "label",
+        "llm_checked": false,
+        "boxes": [
+          [
+            1368,
+            746,
+            1562,
+            822
+          ],
+          [
+            1911,
+            788,
+            2120,
+            843
+          ],
+          [
+            2154,
+            723,
+            2340,
+            831
+          ]
+        ],
+        "rejected": [],
+        "crop_file": "field_crops/9.9.2583.0011_p001__national_board_no.png",
+        "crop_box": [
+          701,
+          505,
+          2370,
+          950
+        ],
+        "crop_kind": "label",
+        "page": "9.9.2583.0011_p001.png",
+        "paddleocr": {
+          "value": "87636",
+          "confidence": 0.915,
+          "ran": true
+        },
+        "gemini": {
+          "value": "87636",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "87636",
+          "source": "both",
+          "status": "agreed"
+        }
+      },
+      "manufactured_by": {
+        "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+        "confidence": 0.98,
+        "source": "label",
+        "llm_checked": false,
+        "boxes": [
+          [
+            931,
+            422,
+            2468,
+            483
+          ]
+        ],
+        "rejected": [],
+        "crop_file": "field_crops/9.9.2583.0011_p001__manufactured_by.png",
+        "crop_box": [
+          0,
+          179,
+          2498,
+          579
+        ],
+        "crop_kind": "label",
+        "page": "9.9.2583.0011_p001.png",
+        "paddleocr": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA",
+          "confidence": 0.972,
+          "ran": true
+        },
+        "gemini": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "source": "both",
+          "status": "agreed"
+        }
+      },
+      "manufactured_for": {
+        "value": "STOCK",
+        "confidence": 0.98,
+        "source": "label",
+        "llm_checked": false,
+        "boxes": [
+          [
+            1051,
+            554,
+            1216,
+            600
+          ]
+        ],
+        "rejected": [],
+        "crop_file": "field_crops/9.9.2583.0011_p001__manufactured_for.png",
+        "crop_box": [
+          0,
+          282,
+          1246,
+          704
+        ],
+        "crop_kind": "label",
+        "page": "9.9.2583.0011_p001.png",
+        "paddleocr": {
+          "value": "BTOCK",
+          "confidence": 0.893,
+          "ran": true
+        },
+        "gemini": {
+          "value": "STOCK",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "STOCK",
+          "source": "gemini",
+          "status": "review_required"
+        }
+      },
+      "material_spec": {
+        "value": "SA 285 C",
+        "confidence": 0.92,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": true
+        },
+        "gemini": {
+          "value": "SA 285 C",
+          "confidence": 0.92
+        },
+        "selection": {
+          "value": "SA 285 C",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      }
+    },
+    "escalate": true,
+    "escalation_reasons": [
+      "form_number: model disagreement or PaddleOCR fallback",
+      "boiler_no: model disagreement or PaddleOCR fallback",
+      "manufactured_for: model disagreement or PaddleOCR fallback"
+    ]
+  },
+  {
+    "document": "9.9.2583.0012.pdf",
+    "pages": [],
+    "ocr_boxes_files": [],
+    "fields": {
+      "form_number": {
+        "value": "Min No 16",
+        "confidence": 0.9,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "Min No 16",
+          "confidence": 0.9
+        },
+        "selection": {
+          "value": "Min No 16",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "report_date": {
+        "value": "JUN 28 1966",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "JUN 28 1966",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "JUN 28 1966",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "year_built": {
+        "value": "1966",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "1966",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "1966",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "boiler_no": {
+        "value": "97557",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "97557",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "97557",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "serial_no": {
+        "value": "97557",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "97557",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "97557",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "national_board_no": {
+        "value": "87637",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "87637",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "87637",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "manufactured_by": {
+        "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+        "confidence": 0.98,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "confidence": 0.98
+        },
+        "selection": {
+          "value": "COLUMBIA BOILER COMPANY OF POTTSTOWN, POTTSTOWN, PA.",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "manufactured_for": {
+        "value": "STOCK",
+        "confidence": 0.99,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "STOCK",
+          "confidence": 0.99
+        },
+        "selection": {
+          "value": "STOCK",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      },
+      "material_spec": {
+        "value": "SA 285 C",
+        "confidence": 0.95,
+        "llm_checked": false,
+        "boxes": [],
+        "rejected": [],
+        "crop_file": null,
+        "crop_box": null,
+        "crop_kind": null,
+        "paddleocr": {
+          "value": null,
+          "confidence": null,
+          "ran": false
+        },
+        "gemini": {
+          "value": "SA 285 C",
+          "confidence": 0.95
+        },
+        "selection": {
+          "value": "SA 285 C",
+          "source": "gemini",
+          "status": "gemini_only"
+        }
+      }
+    },
+    "escalate": false,
+    "escalation_reasons": []
+  }
+]

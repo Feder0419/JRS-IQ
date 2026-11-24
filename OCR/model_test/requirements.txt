@@ -1,0 +1,7 @@
+pymupdf
+pillow
+numpy
+opencv-python
+# plus ONE of these, for your model:
+# anthropic
+# google-genai

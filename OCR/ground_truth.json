@@ -1,0 +1,30 @@
+{
+  "COASTAL_IRON_WKS_REPORTS_1981_page_13.pdf": {
+    "report_date": "2-25-81",
+    "year_built": "1981",
+    "boiler_no": "331491",
+    "serial_no": "331491",
+    "manufactured_by": "COASTAL IRON WORKS, INC. 1133 E. Port, Corpus Christi, Texas",
+    "manufactured_for": "Union Carbide Corporation, P.O. Box 8361, South Charleston, W. Va.",
+    "material_spec": "SA-516-70"
+  },
+  "CLEAVER_BROOKS_REPORTS_1971_page_33.pdf": {
+    "year_built": "1971",
+    "boiler_no": "47525",
+    "serial_no": "47525",
+    "national_board_no": "25517",
+    "manufactured_by": "Cleaver-Brooks Division of Aqua-Chem, Inc., Milwaukee, Wisconsin",
+    "manufactured_for": "Opelousas General Hospital, Opelousas, Louisiana",
+    "material_spec": "SA-285 GR C"
+  },
+  "CLEAVER_BROOKS_REPORTS_1971_page_03.pdf": {
+    "report_date": "September 17, 1971",
+    "year_built": "1971",
+    "boiler_no": "47508",
+    "serial_no": "47508",
+    "national_board_no": "25502",
+    "manufactured_by": "Cleaver-Brooks Division of Aqua-Chem, Inc., Milwaukee, Wisconsin",
+    "manufactured_for": "National Food Stores, Inc., Denver, Colorado",
+    "material_spec": "SA-285-C"
+  }
+}

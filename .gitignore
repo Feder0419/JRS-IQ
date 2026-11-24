@@ -22,3 +22,13 @@ __pycache__/
 
 # local Claude Code settings
 .claude/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+.venvs/
+
+# Generated OCR outputs
+OCR/output/
+OCR/pdfs_to_process/

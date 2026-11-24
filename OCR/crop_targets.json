@@ -1,0 +1,177 @@
+{
+ "_note": "Hand-marked rectangles [x1,y1,x2,y2] in page pixels (300 DPI) that a field crop must fully contain: the label, the value (handwriting included) and the caption printed under it. Used by crop_eval.py.",
+ "pages": {
+  "CLEAVER_BROOKS_REPORTS_1971_page_03_p001": {
+   "form_number": [
+    227,
+    211,
+    1057,
+    279
+   ],
+   "manufactured_by": [
+    166,
+    355,
+    1828,
+    461
+   ],
+   "manufactured_for": [
+    166,
+    461,
+    1903,
+    559
+   ],
+   "boiler_no": [
+    906,
+    579,
+    1269,
+    631
+   ],
+   "serial_no": [
+    1110,
+    574,
+    1375,
+    665
+   ],
+   "national_board_no": [
+    1768,
+    589,
+    2017,
+    683
+   ],
+   "year_built": [
+    2070,
+    612,
+    2372,
+    665
+   ],
+   "report_date": [
+    136,
+    1103,
+    710,
+    1156
+   ]
+  },
+  "CLEAVER_BROOKS_REPORTS_1971_page_03_p002": {
+   "material_spec": [
+    453,
+    529,
+    967,
+    607
+   ]
+  },
+  "CLEAVER_BROOKS_REPORTS_1971_page_33_p001": {
+   "form_number": [
+    295,
+    242,
+    1057,
+    295
+   ],
+   "manufactured_by": [
+    196,
+    363,
+    1858,
+    461
+   ],
+   "manufactured_for": [
+    196,
+    461,
+    2266,
+    551
+   ],
+   "boiler_no": [
+    929,
+    571,
+    1397,
+    653
+   ],
+   "serial_no": [
+    1163,
+    571,
+    1397,
+    653
+   ],
+   "national_board_no": [
+    1798,
+    571,
+    2039,
+    656
+   ],
+   "year_built": [
+    2107,
+    567,
+    2410,
+    627
+   ],
+   "report_date": [
+    189,
+    1103,
+    793,
+    1160
+   ]
+  },
+  "CLEAVER_BROOKS_REPORTS_1971_page_33_p002": {
+   "material_spec": [
+    431,
+    514,
+    967,
+    592
+   ]
+  },
+  "COASTAL_IRON_WKS_REPORTS_1981_page_13_p001": {
+   "form_number": [
+    544,
+    128,
+    1971,
+    174
+   ],
+   "manufactured_by": [
+    242,
+    378,
+    2266,
+    453
+   ],
+   "manufactured_for": [
+    242,
+    450,
+    2326,
+    526
+   ],
+   "boiler_no": [
+    891,
+    592,
+    1465,
+    675
+   ],
+   "serial_no": [
+    1163,
+    592,
+    1473,
+    675
+   ],
+   "national_board_no": [
+    440,
+    662,
+    700,
+    751
+   ],
+   "year_built": [
+    823,
+    672,
+    1311,
+    722
+   ],
+   "report_date": [
+    234,
+    2032,
+    634,
+    2100
+   ],
+   "material_spec": [
+    559,
+    1326,
+    990,
+    1415
+   ]
+  }
+ }
+}
